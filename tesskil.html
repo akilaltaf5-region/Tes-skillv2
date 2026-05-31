@@ -825,6 +825,13 @@ window.showLogin = function() {
   document.getElementById('registerBox').style.display='none';
 }
 
+function withTimeout(promise, ms=8000) {
+  return Promise.race([
+    promise,
+    new Promise((_,reject) => setTimeout(() => reject(new Error('Koneksi timeout! Pastikan Firebase Realtime Database sudah diaktifkan di console.')), ms))
+  ]);
+}
+
 window.doRegister = async function() {
   const u = document.getElementById('regUser').value.trim();
   const p = document.getElementById('regPass').value;
@@ -835,12 +842,18 @@ window.doRegister = async function() {
   if(u.toLowerCase() === 'admin') return setMsg('regMsg','Username tidak boleh "Admin"!','err');
   showLoading(true);
   try {
-    const snap = await get(ref(db, `users/${u}`));
+    const snap = await withTimeout(get(ref(db, `users/${u}`)));
     if(snap.exists()) { setMsg('regMsg','Username sudah dipakai!','err'); showLoading(false); return; }
-    await set(ref(db, `users/${u}`), { password: btoa(p), role: 'user', createdAt: Date.now() });
-    setMsg('regMsg','Akun berhasil dibuat! Silakan login.','ok');
+    await withTimeout(set(ref(db, `users/${u}`), { password: btoa(p), role: 'user', createdAt: Date.now() }));
+    setMsg('regMsg','✅ Akun berhasil dibuat! Silakan login.','ok');
     showLogin();
-  } catch(e) { setMsg('regMsg','Error: '+e.message,'err'); }
+  } catch(e) {
+    if(e.message.includes('timeout')) {
+      setMsg('regMsg','⚠️ Database belum aktif! Aktifkan Realtime Database di Firebase Console dulu.','err');
+    } else {
+      setMsg('regMsg','Error: '+e.message,'err');
+    }
+  }
   showLoading(false);
 }
 
@@ -850,7 +863,7 @@ window.doLogin = async function() {
   if(!u || !p) return setMsg('loginMsg','Isi username dan password!','err');
   showLoading(true);
   try {
-    // Admin check
+    // Admin check — bypass Firebase
     if(u === 'Admin' && p === 'Admin') {
       currentUser = { username: 'Admin', role: 'admin' };
       sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
@@ -859,7 +872,7 @@ window.doLogin = async function() {
       showLoading(false);
       return;
     }
-    const snap = await get(ref(db, `users/${u}`));
+    const snap = await withTimeout(get(ref(db, `users/${u}`)));
     if(!snap.exists()) { setMsg('loginMsg','Akun tidak ditemukan!','err'); showLoading(false); return; }
     const data = snap.val();
     if(atob(data.password) !== p) { setMsg('loginMsg','Password salah!','err'); showLoading(false); return; }
@@ -867,7 +880,13 @@ window.doLogin = async function() {
     sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
     setupDash();
     showScreen('dashScreen');
-  } catch(e) { setMsg('loginMsg','Error: '+e.message,'err'); }
+  } catch(e) {
+    if(e.message.includes('timeout')) {
+      setMsg('loginMsg','⚠️ Database belum aktif! Aktifkan Realtime Database di Firebase Console dulu.','err');
+    } else {
+      setMsg('loginMsg','Error: '+e.message,'err');
+    }
+  }
   showLoading(false);
 }
 
@@ -1002,7 +1021,7 @@ window.submitScore = async function() {
   showLoading(true);
   try {
     const key = push(ref(db, 'scores')).key;
-    await set(ref(db, `scores/${key}`), {
+    await withTimeout(set(ref(db, `scores/${key}`), {
       username: currentUser.username,
       category: r.category,
       score: r.score,
@@ -1011,13 +1030,19 @@ window.submitScore = async function() {
       pass: r.pass,
       status: 'pending',
       submittedAt: Date.now()
-    });
+    }));
     document.getElementById('submitScoreBtn').style.display='none';
     const info = document.getElementById('submitInfo');
     info.style.display='block';
     info.textContent = '📤 Nilai berhasil diajukan! Menunggu persetujuan admin untuk masuk leaderboard.';
     showNotif('Nilai berhasil diajukan ke admin!');
-  } catch(e) { showNotif('Gagal submit: '+e.message, 'error'); }
+  } catch(e) {
+    if(e.message.includes('timeout')) {
+      showNotif('⚠️ Database belum aktif! Buka Firebase Console dan aktifkan Realtime Database.', 'error');
+    } else {
+      showNotif('Gagal submit: '+e.message, 'error');
+    }
+  }
   showLoading(false);
 }
 
