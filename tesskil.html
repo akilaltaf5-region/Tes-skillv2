@@ -227,24 +227,28 @@
     box-shadow:var(--glow);
   }
   .quiz-q {
-    font-size:1.1rem; font-weight:600; line-height:1.6; margin-bottom:28px; color:var(--text);
+    font-size:1.1rem; font-weight:700; line-height:1.6; margin-bottom:28px; color:#ffffff;
+    text-shadow: 0 0 20px rgba(0,245,255,0.2);
   }
   .quiz-options { display:grid; gap:12px; }
   .quiz-opt {
-    padding:14px 20px;
-    background:rgba(0,0,0,0.3); border:1px solid var(--border);
+    padding:16px 20px;
+    background:rgba(255,255,255,0.07); border:1px solid rgba(0,245,255,0.25);
     border-radius:10px; cursor:pointer; transition:all 0.25s;
-    font-size:0.95rem; text-align:left;
+    font-size:1rem; text-align:left; font-weight:600;
+    color:#ffffff;
     display:flex; align-items:center; gap:12px;
   }
-  .quiz-opt:hover { border-color:var(--accent); background:rgba(0,245,255,0.05); }
-  .quiz-opt.selected { border-color:var(--accent); background:rgba(0,245,255,0.1); }
-  .quiz-opt.correct { border-color:var(--green); background:rgba(0,255,136,0.1); color:var(--green); }
-  .quiz-opt.wrong { border-color:var(--red); background:rgba(255,34,68,0.1); color:var(--red); }
+  .quiz-opt:hover { border-color:var(--accent); background:rgba(0,245,255,0.12); color:#fff; }
+  .quiz-opt.selected { border-color:var(--accent); background:rgba(0,245,255,0.15); color:#fff; }
+  .quiz-opt.correct { border-color:var(--green); background:rgba(0,255,136,0.15); color:var(--green); font-weight:700; }
+  .quiz-opt.wrong { border-color:var(--red); background:rgba(255,34,68,0.15); color:var(--red); font-weight:700; }
+  .quiz-opt:disabled { cursor:not-allowed; opacity:0.7; }
   .opt-letter {
-    width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
+    width:30px; height:30px; border-radius:50%; border:2px solid rgba(0,245,255,0.4);
     display:flex; align-items:center; justify-content:center;
     font-family:'Orbitron',monospace; font-size:0.75rem; font-weight:700; flex-shrink:0;
+    color:var(--accent); background:rgba(0,245,255,0.08);
   }
   .quiz-nav { display:flex; gap:12px; justify-content:flex-end; }
   .btn-quiz {
@@ -253,6 +257,7 @@
     transition:all 0.3s;
   }
   .btn-next { background:linear-gradient(135deg,var(--accent),#0099cc); color:#000; }
+  .btn-next:disabled { opacity:0.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
   .btn-next:hover { transform:translateY(-2px); box-shadow:var(--glow); }
   .btn-give-up {
     background:transparent; border:1px solid var(--red); color:var(--red);
@@ -970,12 +975,16 @@ function renderQ() {
   document.getElementById('quizFill').style.width = `${((currentQ)/total)*100}%`;
   document.getElementById('quizQ').textContent = q.q;
   answered = false;
-  document.getElementById('nextBtn').disabled = true;
+  const nb = document.getElementById('nextBtn');
+  nb.disabled = true;
+  nb.style.opacity = '0.4';
+  nb.style.cursor = 'not-allowed';
   const opts = document.getElementById('quizOpts');
   const letters = ['A','B','C','D'];
   opts.innerHTML = q.opts.map((o,i) => `
-    <button class="quiz-opt" onclick="selectOpt(${i})">
-      <span class="opt-letter">${letters[i]}</span>${o}
+    <button class="quiz-opt" id="opt_${i}" onclick="selectOpt(${i})">
+      <span class="opt-letter">${letters[i]}</span>
+      <span style="color:#ffffff;font-weight:600;font-size:1rem">${o}</span>
     </button>`).join('');
 }
 
@@ -984,10 +993,14 @@ window.selectOpt = function(i) {
   answered = true;
   const q = currentQuiz[currentQ];
   const btns = document.querySelectorAll('.quiz-opt');
+  btns.forEach(b => { b.style.pointerEvents='none'; });
   btns[i].classList.add(i===q.ans ? 'correct' : 'wrong');
   if(i !== q.ans) btns[q.ans].classList.add('correct');
   if(i === q.ans) score++;
-  document.getElementById('nextBtn').disabled = false;
+  const nb2 = document.getElementById('nextBtn');
+  nb2.disabled = false;
+  nb2.style.opacity = '1';
+  nb2.style.cursor = 'pointer';
   document.getElementById('quizScore').textContent = `Benar: ${score}`;
 }
 
