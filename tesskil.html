@@ -604,9 +604,9 @@
 
 <!-- Firebase & App Script -->
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
-import { getDatabase, ref, set, get, push, onValue, update, remove } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getDatabase, ref, set, get, push, onValue, update, remove, connectDatabaseEmulator } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAECH7bUv8Ulq_oC9At_9cAMdRXu4woLok",
@@ -621,6 +621,9 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+const auth = getAuth(app);
+
+// Firebase Auth digunakan untuk auth
 
 // ===== QUESTION BANKS =====
 const QUESTIONS = {
@@ -825,13 +828,7 @@ window.showLogin = function() {
   document.getElementById('registerBox').style.display='none';
 }
 
-function withTimeout(promise, ms=8000) {
-  return Promise.race([
-    promise,
-    new Promise((_,reject) => setTimeout(() => reject(new Error('Koneksi timeout! Pastikan Firebase Realtime Database sudah diaktifkan di console.')), ms))
-  ]);
-}
-
+// Gunakan Firebase Auth untuk register/login — lebih reliable
 window.doRegister = async function() {
   const u = document.getElementById('regUser').value.trim();
   const p = document.getElementById('regPass').value;
@@ -841,15 +838,22 @@ window.doRegister = async function() {
   if(p !== p2) return setMsg('regMsg','Password tidak cocok!','err');
   if(u.toLowerCase() === 'admin') return setMsg('regMsg','Username tidak boleh "Admin"!','err');
   showLoading(true);
+  // Pakai email fake: username@tesskil.app
+  const fakeEmail = u + '@tesskil.app';
   try {
-    const snap = await withTimeout(get(ref(db, `users/${u}`)));
-    if(snap.exists()) { setMsg('regMsg','Username sudah dipakai!','err'); showLoading(false); return; }
-    await withTimeout(set(ref(db, `users/${u}`), { password: btoa(p), role: 'user', createdAt: Date.now() }));
+    const cred = await createUserWithEmailAndPassword(auth, fakeEmail, p);
+    // Simpan username ke database
+    await set(ref(db, `users/${cred.user.uid}`), { username: u, role: 'user', createdAt: Date.now() });
+    // Simpan mapping username -> uid
+    await set(ref(db, `usernames/${u}`), cred.user.uid);
     setMsg('regMsg','✅ Akun berhasil dibuat! Silakan login.','ok');
+    await signOut(auth);
     showLogin();
   } catch(e) {
-    if(e.message.includes('timeout')) {
-      setMsg('regMsg','⚠️ Database belum aktif! Aktifkan Realtime Database di Firebase Console dulu.','err');
+    if(e.code === 'auth/email-already-in-use') {
+      setMsg('regMsg','Username sudah dipakai!','err');
+    } else if(e.code === 'auth/network-request-failed') {
+      setMsg('regMsg','Gagal koneksi internet!','err');
     } else {
       setMsg('regMsg','Error: '+e.message,'err');
     }
@@ -862,27 +866,27 @@ window.doLogin = async function() {
   const p = document.getElementById('loginPass').value;
   if(!u || !p) return setMsg('loginMsg','Isi username dan password!','err');
   showLoading(true);
+  // Admin bypass
+  if(u === 'Admin' && p === 'Admin') {
+    currentUser = { username: 'Admin', role: 'admin' };
+    sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
+    setupDash(); showScreen('dashScreen'); showLoading(false); return;
+  }
+  const fakeEmail = u + '@tesskil.app';
   try {
-    // Admin check — bypass Firebase
-    if(u === 'Admin' && p === 'Admin') {
-      currentUser = { username: 'Admin', role: 'admin' };
-      sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
-      setupDash();
-      showScreen('dashScreen');
-      showLoading(false);
-      return;
-    }
-    const snap = await withTimeout(get(ref(db, `users/${u}`)));
-    if(!snap.exists()) { setMsg('loginMsg','Akun tidak ditemukan!','err'); showLoading(false); return; }
-    const data = snap.val();
-    if(atob(data.password) !== p) { setMsg('loginMsg','Password salah!','err'); showLoading(false); return; }
-    currentUser = { username: u, role: data.role || 'user' };
+    const cred = await signInWithEmailAndPassword(auth, fakeEmail, p);
+    // Ambil data user dari database
+    const snap = await get(ref(db, `users/${cred.user.uid}`));
+    const data = snap.val() || {};
+    currentUser = { username: data.username || u, role: data.role || 'user', uid: cred.user.uid };
     sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
     setupDash();
     showScreen('dashScreen');
   } catch(e) {
-    if(e.message.includes('timeout')) {
-      setMsg('loginMsg','⚠️ Database belum aktif! Aktifkan Realtime Database di Firebase Console dulu.','err');
+    if(e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') {
+      setMsg('loginMsg','Username atau password salah!','err');
+    } else if(e.code === 'auth/network-request-failed') {
+      setMsg('loginMsg','Gagal koneksi internet!','err');
     } else {
       setMsg('loginMsg','Error: '+e.message,'err');
     }
@@ -890,7 +894,8 @@ window.doLogin = async function() {
   showLoading(false);
 }
 
-window.doLogout = function() {
+window.doLogout = async function() {
+  try { await signOut(auth); } catch(e) {}
   currentUser = null;
   sessionStorage.removeItem('tsUser');
   showScreen('loginScreen');
@@ -1021,7 +1026,7 @@ window.submitScore = async function() {
   showLoading(true);
   try {
     const key = push(ref(db, 'scores')).key;
-    await withTimeout(set(ref(db, `scores/${key}`), {
+    await set(ref(db, `scores/${key}`), {
       username: currentUser.username,
       category: r.category,
       score: r.score,
@@ -1030,7 +1035,7 @@ window.submitScore = async function() {
       pass: r.pass,
       status: 'pending',
       submittedAt: Date.now()
-    }));
+    });
     document.getElementById('submitScoreBtn').style.display='none';
     const info = document.getElementById('submitInfo');
     info.style.display='block';
