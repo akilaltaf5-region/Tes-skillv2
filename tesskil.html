@@ -875,12 +875,12 @@
 </div>
 
 <!-- Firebase & App Script -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { getDatabase, ref, set, get, push, update, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-const firebaseConfig = {
+<!-- Firebase compat (global variables, no module needed) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
   apiKey: "AIzaSyAECH7bUv8Ulq_oC9At_9cAMdRXu4woLok",
   authDomain: "tesskil.firebaseapp.com",
   projectId: "tesskil",
@@ -888,13 +888,9 @@ const firebaseConfig = {
   messagingSenderId: "322480626151",
   appId: "1:322480626151:web:a07cd5a1ac80180c110542",
   databaseURL: "https://tesskil-default-rtdb.asia-southeast1.firebasedatabase.app"
-};
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getDatabase(app);
-
-// ===== SOAL =====
-// ===== QUESTION BANKS =====
+});
+const auth = firebase.auth();
+const db = firebase.database();
 const QUESTIONS = {
   coding: [
     {q:"Apa kepanjangan dari HTML?",opts:["Hyper Text Markup Language","High Text Markup Language","Hyper Tool Markup Language","Hyper Text Modern Language"],ans:0},
@@ -1150,6 +1146,10 @@ let currentQuiz = null;
 // ===== HELPERS =====
 let currentUser = null;
 
+
+// ===== HELPERS =====
+let currentUser = null;
+
 function esc(s) {
   if(s==null) return '';
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
@@ -1160,19 +1160,19 @@ function safeAvatar(u) {
 }
 function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el = document.getElementById(id);
+  const el=document.getElementById(id);
   if(el) el.classList.add('active');
 }
 function showLoading(v) { document.getElementById('loadingOverlay').classList.toggle('show',v); }
 function showNotif(msg,type='success') {
   const n=document.createElement('div');
-  n.className=`notif ${type}`; n.textContent=msg;
+  n.className='notif '+type; n.textContent=msg;
   document.body.appendChild(n); setTimeout(()=>n.remove(),3000);
 }
-function setMsg(id,msg,type='') {
+function setMsg(id,msg,type) {
   const el=document.getElementById(id);
   if(!el) return;
-  el.textContent=msg; el.className='msg '+type;
+  el.textContent=msg; el.className='msg '+(type||'');
 }
 
 // ===== ANTI BRUTE FORCE =====
@@ -1181,12 +1181,12 @@ function checkRate(u) {
   const now=Date.now(), k=u.toLowerCase();
   if(!_attempts[k]||now>_attempts[k].r) _attempts[k]={c:0,r:now+60000};
   _attempts[k].c++;
-  if(_attempts[k].c>5) return `Terlalu banyak percobaan! Tunggu ${Math.ceil((_attempts[k].r-now)/1000)}d.`;
+  if(_attempts[k].c>5) return 'Terlalu banyak percobaan! Tunggu '+Math.ceil((_attempts[k].r-now)/1000)+' detik.';
   return null;
 }
 function clearRate(u) { delete _attempts[u.toLowerCase()]; }
 
-// ===== ADMIN HASH (SHA-256 dari "akil123456") =====
+// ===== ADMIN HASH SHA-256 dari "akil123456" =====
 async function hashPass(s) {
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
@@ -1194,35 +1194,35 @@ async function hashPass(s) {
 const ADMIN_HASH='6fa45a20bffaabe58dc22965b12b9e7bff91b43aa9b0280964aaab4f3dda5661';
 
 // ===== SCREENS =====
-window.showLogin=function(){
+function showLogin(){
   document.getElementById('loginBox').style.display='block';
   document.getElementById('registerBox').style.display='none';
   setMsg('loginMsg','');
 }
-window.showRegister=function(){
+function showRegister(){
   document.getElementById('loginBox').style.display='none';
   document.getElementById('registerBox').style.display='block';
   setMsg('regMsg','');
 }
-window.showDash=function(){ showScreen('dashScreen'); }
-window.showAdmin=function(){
+function showDash(){ showScreen('dashScreen'); }
+function showAdmin(){
   if(currentUser?.role!=='admin') return;
   showScreen('adminScreen');
   switchAdminTab('scores');
 }
-window.showProfile=function(){
+function showProfile(){
   document.getElementById('profileUsernameDisplay').textContent=currentUser?.username||'-';
   document.getElementById('profileRoleDisplay').textContent=(currentUser?.role||'user').toUpperCase();
   document.getElementById('profileDisplayName').value=currentUser?.displayName||'';
   const img=document.getElementById('profileAvatarImg');
-  if(currentUser?.avatar) img.src=currentUser.avatar;
-  else img.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23111'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2300f5ff' opacity='0.5'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='18' fill='%2300f5ff' opacity='0.3'/%3E%3C/svg%3E";
+  img.src=currentUser?.avatar||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23111'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2300f5ff' opacity='0.5'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='18' fill='%2300f5ff' opacity='0.3'/%3E%3C/svg%3E";
   setMsg('profileMsg','');
   showScreen('profileScreen');
 }
+function showGameSelect(){ showScreen('gameSelectScreen'); }
 
 // ===== REGISTER =====
-window.doRegister=async function(){
+async function doRegister(){
   const u=document.getElementById('regUser').value.trim();
   const p=document.getElementById('regPass').value;
   const p2=document.getElementById('regPass2').value;
@@ -1233,14 +1233,13 @@ window.doRegister=async function(){
   if(u.toLowerCase()==='admin') return setMsg('regMsg','Username tidak boleh "Admin"!','err');
   showLoading(true);
   try {
-    // cek username sudah ada
-    const usnap=await get(ref(db,`usernames/${u}`));
-    if(usnap.exists()) { setMsg('regMsg','Username sudah dipakai!','err'); showLoading(false); return; }
-    const cred=await createUserWithEmailAndPassword(auth,u+'@tesskil.app',p);
-    await set(ref(db,`users/${cred.user.uid}`),{username:u,role:'user',createdAt:Date.now()});
-    await set(ref(db,`usernames/${u}`),cred.user.uid);
+    const usnap=await db.ref('usernames/'+u).get();
+    if(usnap.exists()){setMsg('regMsg','Username sudah dipakai!','err');showLoading(false);return;}
+    const cred=await auth.createUserWithEmailAndPassword(u+'@tesskil.app',p);
+    await db.ref('users/'+cred.user.uid).set({username:u,role:'user',createdAt:Date.now()});
+    await db.ref('usernames/'+u).set(cred.user.uid);
     setMsg('regMsg','✅ Akun berhasil! Silakan login.','ok');
-    await signOut(auth);
+    await auth.signOut();
     setTimeout(()=>showLogin(),1500);
   } catch(e) {
     if(e.code==='auth/email-already-in-use') setMsg('regMsg','Username sudah dipakai!','err');
@@ -1251,17 +1250,16 @@ window.doRegister=async function(){
 }
 
 // ===== LOGIN =====
-window.doLogin=async function(){
+async function doLogin(){
   const u=document.getElementById('loginUser').value.trim();
   const p=document.getElementById('loginPass').value.trim();
   if(!u||!p) return setMsg('loginMsg','Isi username dan password!','err');
   const limited=checkRate(u);
   if(limited) return setMsg('loginMsg',limited,'err');
   showLoading(true);
-  // Admin bypass via hash
-  if(u==='Admin') {
+  if(u==='Admin'){
     const h=await hashPass(p);
-    if(h===ADMIN_HASH) {
+    if(h===ADMIN_HASH){
       clearRate(u);
       currentUser={username:'Admin',role:'admin'};
       sessionStorage.setItem('tsUser',JSON.stringify(currentUser));
@@ -1272,24 +1270,21 @@ window.doLogin=async function(){
     showLoading(false); return;
   }
   try {
-    const cred=await signInWithEmailAndPassword(auth,u+'@tesskil.app',p);
-    const snap=await get(ref(db,`users/${cred.user.uid}`));
+    const cred=await auth.signInWithEmailAndPassword(u+'@tesskil.app',p);
+    const snap=await db.ref('users/'+cred.user.uid).get();
     const data=snap.val()||{};
-    if(data.banned) {
-      await signOut(auth);
-      showBannedScreen(false, data.banReason||'Akun kamu dibanned permanen.');
+    if(data.banned){
+      await auth.signOut();
+      showBannedScreen(false,data.banReason||'Akun kamu dibanned permanen.');
       showLoading(false); return;
     }
-    if(data.frozenUntil&&data.frozenUntil>Date.now()) {
-      await signOut(auth);
+    if(data.frozenUntil&&data.frozenUntil>Date.now()){
+      await auth.signOut();
       showBannedScreen(true,'Akun kamu sedang dibekukan.',data.frozenUntil);
       showLoading(false); return;
     }
     clearRate(u);
-    currentUser={
-      username:data.username||u, role:data.role||'user',
-      uid:cred.user.uid, displayName:data.displayName||'', avatar:safeAvatar(data.avatar||'')
-    };
+    currentUser={username:data.username||u,role:data.role||'user',uid:cred.user.uid,displayName:data.displayName||'',avatar:safeAvatar(data.avatar||'')};
     sessionStorage.setItem('tsUser',JSON.stringify(currentUser));
     setupDash(); showScreen('dashScreen');
   } catch(e) {
@@ -1302,8 +1297,8 @@ window.doLogin=async function(){
 }
 
 // ===== LOGOUT =====
-window.doLogout=async function(){
-  try{await signOut(auth);}catch(e){}
+async function doLogout(){
+  try{await auth.signOut();}catch(e){}
   currentUser=null; sessionStorage.removeItem('tsUser');
   document.getElementById('bannedScreen').classList.remove('show');
   showScreen('loginScreen'); showLogin();
@@ -1313,7 +1308,7 @@ window.doLogout=async function(){
 function setupDash(){
   const name=currentUser?.displayName||currentUser?.username||'User';
   document.getElementById('userBadge').textContent='👤 '+name;
-  document.getElementById('dashGreet').textContent=`Halo, ${name}! ⚡`;
+  document.getElementById('dashGreet').textContent='Halo, '+name+'! ⚡';
   document.getElementById('adminBtn').style.display=currentUser?.role==='admin'?'block':'none';
   loadLeaderboard();
 }
@@ -1331,28 +1326,28 @@ function showBannedScreen(isFrozen,reason,frozenUntil){
       const left=frozenUntil-Date.now();
       if(left<=0){scr.classList.remove('show');showScreen('loginScreen');return;}
       const h=Math.floor(left/3600000),m=Math.floor((left%3600000)/60000),s=Math.floor((left%60000)/1000);
-      fs.textContent=`Cair dalam: ${h>0?h+'j ':''} ${m}m ${s}d`;
+      fs.textContent='Cair dalam: '+(h>0?h+'j ':'')+m+'m '+s+'d';
       setTimeout(tick,1000);
     })();
   } else { fs.style.display='none'; }
 }
 
 // ===== PROFILE =====
-window.handleAvatarChange=function(e){
+function handleAvatarChange(e){
   const file=e.target.files[0];
   if(!file) return;
-  if(file.size>2*1024*1024){alert('Ukuran foto max 2MB!');return;}
+  if(file.size>2*1024*1024){alert('Max 2MB!');return;}
   const r=new FileReader();
   r.onload=(ev)=>{document.getElementById('profileAvatarImg').src=ev.target.result;window._newAvatar=ev.target.result;};
   r.readAsDataURL(file);
 }
-window.saveProfile=async function(){
+async function saveProfile(){
   if(!currentUser?.uid){setMsg('profileMsg','Admin tidak bisa ganti profil di sini.','err');return;}
   const dn=document.getElementById('profileDisplayName').value.trim().slice(0,20);
   const av=window._newAvatar||currentUser.avatar||'';
   showLoading(true);
   try {
-    await update(ref(db,`users/${currentUser.uid}`),{displayName:dn,avatar:av});
+    await db.ref('users/'+currentUser.uid).update({displayName:dn,avatar:av});
     currentUser.displayName=dn; currentUser.avatar=av;
     sessionStorage.setItem('tsUser',JSON.stringify(currentUser));
     window._newAvatar=null;
@@ -1363,8 +1358,8 @@ window.saveProfile=async function(){
 }
 
 // ===== LEADERBOARD =====
-let _lbCat='coding', _lbData=null, _lbUnsub=null;
-window.switchLbTab=function(cat,btn){
+let _lbCat='coding', _lbData=null, _lbRef=null;
+function switchLbTab(cat,btn){
   _lbCat=cat;
   document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));
   if(btn) btn.classList.add('active');
@@ -1373,11 +1368,12 @@ window.switchLbTab=function(cat,btn){
 function loadLeaderboard(){
   const el=document.getElementById('leaderboard');
   el.innerHTML='<div class="lb-empty">⏳ Memuat...</div>';
-  if(_lbUnsub) { try{_lbUnsub();}catch(e){} }
-  _lbUnsub=onValue(ref(db,'scores'), snap=>{
+  if(_lbRef) _lbRef.off();
+  _lbRef=db.ref('scores');
+  _lbRef.on('value', snap=>{
     _lbData=snap.val(); renderLb();
   }, err=>{
-    el.innerHTML=`<div class="lb-empty">❌ Gagal load: ${esc(err.message)}</div>`;
+    el.innerHTML='<div class="lb-empty">❌ Gagal: '+esc(err.message)+'</div>';
   });
 }
 async function renderLb(){
@@ -1388,28 +1384,26 @@ async function renderLb(){
     .map(([k,v])=>({...v,id:k}))
     .sort((a,b)=>b.pct-a.pct).slice(0,10);
   if(!list.length){el.innerHTML='<div class="lb-empty">Belum ada nilai di kategori ini 🏆</div>';return;}
-  // fetch profil
   const cache=window._pCache||{};
   for(const item of list){
     if(item.uid&&!cache[item.uid]){
-      try{const s=await get(ref(db,`users/${item.uid}`));cache[item.uid]=s.val()||{};}catch(e){cache[item.uid]={};}
+      try{const s=await db.ref('users/'+item.uid).get();cache[item.uid]=s.val()||{};}catch(e){cache[item.uid]={};}
     }
   }
   window._pCache=cache;
   el.innerHTML=list.map((item,i)=>{
-    const rank=i+1, prof=item.uid?cache[item.uid]||{}:{};
+    const rank=i+1,prof=item.uid?cache[item.uid]||{}:{};
     const name=esc(prof.displayName||item.username);
     const av=safeAvatar(prof.avatar||'');
-    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':`#${rank}`;
-    const rkCls=rank<=3?`rank-${rank}`:'';
-    const avHtml=av?`<img class="lb-avatar" src="${esc(av)}" alt="" onerror="this.style.display='none'">`:`<div class="lb-avatar" style="display:flex;align-items:center;justify-content:center">👤</div>`;
-    return `<div class="lb-row"><div class="lb-rank ${rkCls}">${medal}</div>${avHtml}<div class="lb-name">${name}</div><div class="lb-score">${esc(String(item.pct))}%</div></div>`;
+    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
+    const rkCls=rank<=3?'rank-'+rank:'';
+    const avHtml=av?'<img class="lb-avatar" src="'+esc(av)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="lb-avatar" style="display:flex;align-items:center;justify-content:center">👤</div>';
+    return '<div class="lb-row"><div class="lb-rank '+rkCls+'">'+medal+'</div>'+avHtml+'<div class="lb-name">'+name+'</div><div class="lb-score">'+esc(String(item.pct||0))+'%</div></div>';
   }).join('');
 }
 
 // ===== QUIZ =====
-window.showGameSelect=function(){ showScreen('gameSelectScreen'); }
-window.startQuiz=function(cat){
+function startQuiz(cat){
   const pool=[...QUESTIONS[cat]];
   for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
   window._quiz={cat,qs:pool.slice(0,30),idx:0,score:0};
@@ -1420,20 +1414,17 @@ window.startQuiz=function(cat){
 function renderQ(){
   const {qs,idx,score}=window._quiz;
   const q=qs[idx];
-  document.getElementById('quizCounter').textContent=`Soal ${idx+1} / ${qs.length}`;
-  document.getElementById('quizScore').textContent=`Benar: ${score}`;
-  document.getElementById('quizFill').style.width=`${(idx/qs.length)*100}%`;
+  document.getElementById('quizCounter').textContent='Soal '+(idx+1)+' / '+qs.length;
+  document.getElementById('quizScore').textContent='Benar: '+score;
+  document.getElementById('quizFill').style.width=((idx/qs.length)*100)+'%';
   document.getElementById('quizQ').textContent=q.q;
   document.getElementById('nextBtn').disabled=true;
   const letters=['A','B','C','D'];
   document.getElementById('quizOpts').innerHTML=q.opts.map((o,i)=>
-    `<button class="quiz-opt" onclick="pickOpt(${i})">
-      <span class="opt-letter">${letters[i]}</span>
-      <span style="color:#fff;font-weight:600">${esc(o)}</span>
-    </button>`
+    '<button class="quiz-opt" onclick="pickOpt('+i+')"><span class="opt-letter">'+letters[i]+'</span><span style="color:#fff;font-weight:600">'+esc(o)+'</span></button>'
   ).join('');
 }
-window.pickOpt=function(i){
+function pickOpt(i){
   const q=window._quiz.qs[window._quiz.idx];
   document.querySelectorAll('.quiz-opt').forEach((b,j)=>{
     b.onclick=null;
@@ -1443,175 +1434,164 @@ window.pickOpt=function(i){
   if(i===q.ans) window._quiz.score++;
   document.getElementById('nextBtn').disabled=false;
 }
-window.nextQuestion=function(){
+function nextQuestion(){
   window._quiz.idx++;
   if(window._quiz.idx>=window._quiz.qs.length) showResult();
   else renderQ();
 }
 function showResult(){
   const {cat,qs,score}=window._quiz;
-  const total=qs.length, pct=Math.round((score/total)*100), pass=pct>=60;
+  const total=qs.length,pct=Math.round((score/total)*100),pass=pct>=60;
   window._lastResult={category:cat,score,total,pct,pass};
   document.getElementById('resultEmoji').textContent=pct>=90?'🏆':pct>=70?'🎯':pct>=60?'✅':'😢';
   document.getElementById('resultTitle').textContent=pass?'LULUS!':'GAGAL';
   document.getElementById('resultScore').textContent=pct+'%';
-  document.getElementById('resultDetail').textContent=`${score} dari ${total} benar`;
-  document.getElementById('resultStatus').innerHTML=pass?`<div class="result-pass">✅ Selamat! Kamu lulus</div>`:`<div class="result-fail">❌ Belum lulus. Minimal 60%</div>`;
+  document.getElementById('resultDetail').textContent=score+' dari '+total+' benar';
+  document.getElementById('resultStatus').innerHTML=pass?'<div class="result-pass">✅ Selamat! Kamu lulus</div>':'<div class="result-fail">❌ Belum lulus. Minimal 60%</div>';
   document.getElementById('submitScoreBtn').style.display='inline-block';
   document.getElementById('submitInfo').style.display='none';
   showScreen('resultScreen');
 }
-window.submitScore=async function(){
+async function submitScore(){
   const r=window._lastResult;
   if(!r) return;
   showLoading(true);
   try {
-    const snap=await get(ref(db,'scores'));
+    const snap=await db.ref('scores').get();
     const data=snap.val()||{};
     const myPending=Object.values(data).filter(v=>v.username===currentUser.username&&v.status==='pending');
     if(myPending.length>=5){showNotif('⚠️ Maks 5 nilai pending!','error');showLoading(false);return;}
-    const key=push(ref(db,'scores')).key;
-    await set(ref(db,`scores/${key}`),{
-      username:currentUser.username, uid:currentUser.uid||null,
-      category:r.category, score:r.score, total:r.total, pct:r.pct, pass:r.pass,
-      status:'pending', submittedAt:Date.now()
+    const key=db.ref('scores').push().key;
+    await db.ref('scores/'+key).set({
+      username:currentUser.username,uid:currentUser.uid||null,
+      category:r.category,score:r.score,total:r.total,pct:r.pct,pass:r.pass,
+      status:'pending',submittedAt:Date.now()
     });
     document.getElementById('submitScoreBtn').style.display='none';
     document.getElementById('submitInfo').style.display='block';
     document.getElementById('submitInfo').textContent='📤 Nilai diajukan! Menunggu admin.';
     showNotif('Nilai berhasil diajukan!');
-  } catch(e){ showNotif('Gagal submit: '+e.message,'error'); }
+  } catch(e){ showNotif('Gagal: '+e.message,'error'); }
   showLoading(false);
 }
-window.confirmGiveUp=function(){ document.getElementById('giveUpOverlay').classList.add('show'); }
-window.backFromGiveUp=function(){ document.getElementById('giveUpOverlay').classList.remove('show'); showDash(); }
+function confirmGiveUp(){ document.getElementById('giveUpOverlay').classList.add('show'); }
+function backFromGiveUp(){ document.getElementById('giveUpOverlay').classList.remove('show'); showDash(); }
 
-// ===== ADMIN PANEL =====
-let _adminTab='scores', _adminUnsub=null;
-window.switchAdminTab=function(tab){
-  _adminTab=tab;
+// ===== ADMIN =====
+let _adminRef=null;
+function switchAdminTab(tab){
   document.getElementById('tabScores').className='admin-tab'+(tab==='scores'?' active':'');
   document.getElementById('tabUsers').className='admin-tab'+(tab==='users'?' active':'');
+  if(_adminRef){_adminRef.off();_adminRef=null;}
   if(tab==='scores') loadAdminScores(); else loadAdminUsers();
 }
-function loadAdminPanel(){ switchAdminTab('scores'); }
-
 function loadAdminScores(){
   const tbl=document.getElementById('adminTable');
-  tbl.innerHTML='<div class="lb-empty">⏳ Loading nilai...</div>';
-  if(_adminUnsub){try{_adminUnsub();}catch(e){}}
-  _adminUnsub=onValue(ref(db,'scores'),snap=>{
+  tbl.innerHTML='<div class="lb-empty">⏳ Loading...</div>';
+  _adminRef=db.ref('scores');
+  _adminRef.on('value',snap=>{
     const data=snap.val();
     if(!data){tbl.innerHTML='<div class="lb-empty">Tidak ada pengajuan.</div>';return;}
     const list=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.submittedAt-a.submittedAt);
-    tbl.innerHTML=`<table class="admin-table">
-      <thead><tr><th>Username</th><th>Kategori</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr></thead>
-      <tbody>${list.map(item=>`<tr>
-        <td><strong>${esc(item.username)}</strong></td>
-        <td>${esc((item.category||'').toUpperCase())}</td>
-        <td>${esc(String(item.pct||0))}% (${esc(String(item.score||0))}/${esc(String(item.total||0))})</td>
-        <td><span class="lb-status ${item.status==='approved'?'approved':'pending'}">${item.status==='pending'?'⏳ Pending':item.status==='approved'?'✅ OK':'❌ Tolak'}</span></td>
-        <td>${item.status==='pending'
-          ?`<button class="btn-approve" onclick="approveScore('${esc(item.id)}')">✅</button><button class="btn-reject" onclick="rejectScore('${esc(item.id)}')">❌</button>`
-          :`<button class="btn-reject" onclick="deleteScore('${esc(item.id)}')">🗑️</button>`}
-        </td></tr>`).join('')}</tbody></table>`;
-  },err=>{tbl.innerHTML=`<div class="lb-empty">❌ ${esc(err.message)}</div>`;});
+    tbl.innerHTML='<table class="admin-table"><thead><tr><th>Username</th><th>Kategori</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr></thead><tbody>'+
+      list.map(item=>'<tr><td><strong>'+esc(item.username)+'</strong></td><td>'+esc((item.category||'').toUpperCase())+'</td><td>'+esc(String(item.pct||0))+'%</td><td><span class="lb-status '+(item.status==='approved'?'approved':'pending')+'">'+
+        (item.status==='pending'?'⏳ Pending':item.status==='approved'?'✅ OK':'❌')+'</span></td><td>'+
+        (item.status==='pending'?'<button class="btn-approve" onclick="approveScore(\''+esc(item.id)+'\')">✅</button><button class="btn-reject" onclick="rejectScore(\''+esc(item.id)+'\')">❌</button>':
+        '<button class="btn-reject" onclick="deleteScore(\''+esc(item.id)+'\')">🗑️</button>')+
+        '</td></tr>').join('')+'</tbody></table>';
+  },err=>{tbl.innerHTML='<div class="lb-empty">❌ '+esc(err.message)+'</div>';});
 }
-
 function loadAdminUsers(){
   const tbl=document.getElementById('adminTable');
-  tbl.innerHTML='<div class="lb-empty">⏳ Loading users...</div>';
-  if(_adminUnsub){try{_adminUnsub();}catch(e){}}
-  _adminUnsub=onValue(ref(db,'users'),snap=>{
+  tbl.innerHTML='<div class="lb-empty">⏳ Loading...</div>';
+  _adminRef=db.ref('users');
+  _adminRef.on('value',snap=>{
     const data=snap.val();
     if(!data){tbl.innerHTML='<div class="lb-empty">Tidak ada user.</div>';return;}
     const list=Object.entries(data).map(([uid,v])=>({...v,uid})).sort((a,b)=>(a.username||'').localeCompare(b.username||''));
-    tbl.innerHTML=`<table class="admin-table">
-      <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
-      <tbody>${list.map(u=>{
+    tbl.innerHTML='<table class="admin-table"><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody>'+
+      list.map(u=>{
         const isMain=u.username==='Admin';
-        const suid=esc(u.uid), suname=esc(u.username||'-');
-        const badge=u.banned?'<span class="ban-badge banned">🚫 BANNED</span>':u.frozenUntil&&u.frozenUntil>Date.now()?'<span class="ban-badge frozen">❄️ FROZEN</span>':'<span style="color:var(--green);font-size:0.82rem">✅ Aktif</span>';
-        const acts=isMain?'<span style="color:var(--muted);font-size:0.8rem">Protected</span>':
-          (u.banned?`<button class="btn-unban" onclick="doUnban('${suid}')">✅ Unban</button>`
-            :`<button class="btn-ban" onclick="doBan('${suid}','${suname}')">🚫 Ban</button><button class="btn-freeze" onclick="openFreeze('${suid}','${suname}')">❄️</button>`)
-          +(u.frozenUntil&&u.frozenUntil>Date.now()&&!u.banned?`<button class="btn-unban" onclick="doUnfreeze('${suid}')">🔥</button>`:'');
-        return `<tr><td><strong>${suname}</strong>${u.displayName?`<br><span style="color:var(--muted);font-size:0.78rem">${esc(u.displayName)}</span>`:''}</td><td><span style="color:${u.role==='admin'?'var(--accent2)':'var(--muted)'}">${esc((u.role||'user').toUpperCase())}</span></td><td>${badge}</td><td>${acts}</td></tr>`;
-      }).join('')}</tbody></table>`;
-  },err=>{tbl.innerHTML=`<div class="lb-empty">❌ ${esc(err.message)}</div>`;});
+        const suid=esc(u.uid),suname=esc(u.username||'-');
+        const badge=u.banned?'<span class="ban-badge banned">🚫 BANNED</span>':
+          (u.frozenUntil&&u.frozenUntil>Date.now()?'<span class="ban-badge frozen">❄️ FROZEN</span>':'<span style="color:var(--green)">✅ Aktif</span>');
+        const acts=isMain?'<span style="color:var(--muted)">Protected</span>':
+          (u.banned?'<button class="btn-unban" onclick="doUnban(\''+suid+'\')">✅ Unban</button>':
+          '<button class="btn-ban" onclick="doBan(\''+suid+'\',\''+suname+'\')">🚫</button> <button class="btn-freeze" onclick="openFreeze(\''+suid+'\',\''+suname+'\')">❄️</button>')+
+          (u.frozenUntil&&u.frozenUntil>Date.now()&&!u.banned?'<button class="btn-unban" onclick="doUnfreeze(\''+suid+'\')">🔥</button>':'');
+        return '<tr><td><strong>'+suname+'</strong>'+(u.displayName?'<br><small style="color:var(--muted)">'+esc(u.displayName)+'</small>':'')+'</td><td>'+esc((u.role||'user').toUpperCase())+'</td><td>'+badge+'</td><td>'+acts+'</td></tr>';
+      }).join('')+'</tbody></table>';
+  },err=>{tbl.innerHTML='<div class="lb-empty">❌ '+esc(err.message)+'</div>';});
 }
-
-window.approveScore=async function(id){ await update(ref(db,`scores/${id}`),{status:'approved'}); showNotif('✅ Disetujui!'); }
-window.rejectScore=async function(id){ await update(ref(db,`scores/${id}`),{status:'rejected'}); showNotif('❌ Ditolak.'); }
-window.deleteScore=async function(id){ if(confirm('Hapus data ini?')) await remove(ref(db,`scores/${id}`)); }
-window.doBan=async function(uid,uname){
-  if(!confirm(`Ban permanen "${uname}"?`)) return;
-  const reason=prompt('Alasan ban:')||'Melanggar aturan.';
-  await update(ref(db,`users/${uid}`),{banned:true,banReason:reason,frozenUntil:null});
-  showNotif(`🚫 "${uname}" dibanned.`);
+async function approveScore(id){ await db.ref('scores/'+id).update({status:'approved'}); showNotif('✅ Disetujui!'); }
+async function rejectScore(id){ await db.ref('scores/'+id).update({status:'rejected'}); showNotif('Ditolak.'); }
+async function deleteScore(id){ if(confirm('Hapus?')) await db.ref('scores/'+id).remove(); }
+async function doBan(uid,uname){
+  if(!confirm('Ban "'+uname+'"?')) return;
+  const reason=prompt('Alasan:')||'Melanggar aturan.';
+  await db.ref('users/'+uid).update({banned:true,banReason:reason,frozenUntil:null});
+  showNotif('🚫 Dibanned.');
 }
-window.doUnban=async function(uid){ await update(ref(db,`users/${uid}`),{banned:false,banReason:null}); showNotif('✅ Akun di-unban.'); }
-window.doUnfreeze=async function(uid){ await update(ref(db,`users/${uid}`),{frozenUntil:null}); showNotif('🔥 Akun dicairkan.'); }
-
+async function doUnban(uid){ await db.ref('users/'+uid).update({banned:false,banReason:null}); showNotif('✅ Unban.'); }
+async function doUnfreeze(uid){ await db.ref('users/'+uid).update({frozenUntil:null}); showNotif('🔥 Dicairkan.'); }
 let _freezeUid=null;
-window.openFreeze=function(uid,uname){
+function openFreeze(uid,uname){
   _freezeUid=uid;
   document.getElementById('freezeTargetUser').textContent=uname;
   document.getElementById('freezeDurInput').value='';
-  document.getElementById('freezeMsg').textContent='';
+  setMsg('freezeMsg','');
   document.getElementById('freezeModal').classList.add('show');
 }
-window.setFreezeDur=function(s){ document.getElementById('freezeDurInput').value=s; }
-window.doFreezeAccount=async function(){
+function setFreezeDur(s){ document.getElementById('freezeDurInput').value=s; }
+async function doFreezeAccount(){
   const s=parseInt(document.getElementById('freezeDurInput').value);
-  if(!s||s<1){ document.getElementById('freezeMsg').textContent='Masukkan durasi!'; return; }
-  await update(ref(db,`users/${_freezeUid}`),{frozenUntil:Date.now()+s*1000,banned:false});
+  if(!s||s<1){setMsg('freezeMsg','Masukkan durasi!','err');return;}
+  await db.ref('users/'+_freezeUid).update({frozenUntil:Date.now()+s*1000,banned:false});
   document.getElementById('freezeModal').classList.remove('show');
-  showNotif(`❄️ Dibekukan ${s} detik.`);
+  showNotif('❄️ Dibekukan '+s+' detik.');
 }
 
 // ===== GANTI SANDI =====
-window.doChangePassword=async function(){
+async function doChangePassword(){
   const oldP=document.getElementById('cpOld').value;
   const newP=document.getElementById('cpNew').value;
   const newP2=document.getElementById('cpNew2').value;
   if(!oldP||!newP) return setMsg('cpMsg','Isi semua field!','err');
-  if(newP.length<6) return setMsg('cpMsg','Password baru min 6 karakter!','err');
+  if(newP.length<6) return setMsg('cpMsg','Min 6 karakter!','err');
   if(newP!==newP2) return setMsg('cpMsg','Konfirmasi tidak cocok!','err');
   if(!currentUser?.uid) return setMsg('cpMsg','Admin tidak bisa ganti sandi di sini.','err');
   showLoading(true);
   try {
-    const {EmailAuthProvider,reauthenticateWithCredential,updatePassword}=await import("https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js");
     const user=auth.currentUser;
-    const cred=EmailAuthProvider.credential(currentUser.username+'@tesskil.app',oldP);
-    await reauthenticateWithCredential(user,cred);
-    await updatePassword(user,newP);
+    const cred=firebase.auth.EmailAuthProvider.credential(currentUser.username+'@tesskil.app',oldP);
+    await user.reauthenticateWithCredential(cred);
+    await user.updatePassword(newP);
     setMsg('cpMsg','✅ Password berhasil diubah!','ok');
     setTimeout(()=>document.getElementById('changePwModal').classList.remove('show'),2000);
   } catch(e){
-    if(e.code==='auth/wrong-password'||e.code==='auth/invalid-credential') setMsg('cpMsg','Password lama salah!','err');
+    if(e.code==='auth/wrong-password') setMsg('cpMsg','Password lama salah!','err');
     else setMsg('cpMsg','Error: '+e.message,'err');
   }
   showLoading(false);
 }
 
 // ===== ADMIN BUAT AKUN =====
-window.doAdminCreateAccount=async function(){
+async function doAdminCreateAccount(){
   if(currentUser?.role!=='admin') return;
   const u=document.getElementById('acUser').value.trim();
   const p=document.getElementById('acPass').value;
   const role=document.getElementById('acRole').value;
   if(!u||!p) return setMsg('acMsg','Isi semua field!','err');
-  if(p.length<6) return setMsg('acMsg','Password min 6 karakter!','err');
+  if(p.length<6) return setMsg('acMsg','Min 6 karakter!','err');
   showLoading(true);
   try {
-    const usnap=await get(ref(db,`usernames/${u}`));
+    const usnap=await db.ref('usernames/'+u).get();
     if(usnap.exists()){setMsg('acMsg','Username sudah dipakai!','err');showLoading(false);return;}
-    const cred=await createUserWithEmailAndPassword(auth,u+'@tesskil.app',p);
-    await set(ref(db,`users/${cred.user.uid}`),{username:u,role,createdAt:Date.now()});
-    await set(ref(db,`usernames/${u}`),cred.user.uid);
-    await signOut(auth);
-    setMsg('acMsg',`✅ Akun "${u}" (${role}) dibuat!`,'ok');
+    const cred=await auth.createUserWithEmailAndPassword(u+'@tesskil.app',p);
+    await db.ref('users/'+cred.user.uid).set({username:u,role,createdAt:Date.now()});
+    await db.ref('usernames/'+u).set(cred.user.uid);
+    await auth.signOut();
+    setMsg('acMsg','✅ Akun "'+u+'" ('+role+') dibuat!','ok');
     document.getElementById('acUser').value='';
     document.getElementById('acPass').value='';
   } catch(e){
@@ -1628,7 +1608,7 @@ window.doAdminCreateAccount=async function(){
     const p=document.createElement('div');
     p.className='particle';
     const sz=Math.random()*4+2;
-    p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;animation-duration:${Math.random()*15+10}s;animation-delay:${Math.random()*10}s;`;
+    p.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;animation-duration:'+(Math.random()*15+10)+'s;animation-delay:'+(Math.random()*10)+'s;';
     c.appendChild(p);
   }
 })();
@@ -1636,10 +1616,8 @@ window.doAdminCreateAccount=async function(){
 // ===== SESSION RESTORE =====
 const saved=sessionStorage.getItem('tsUser');
 if(saved){
-  try{
-    currentUser=JSON.parse(saved);
-    setupDash(); showScreen('dashScreen');
-  }catch(e){ sessionStorage.removeItem('tsUser'); }
+  try{currentUser=JSON.parse(saved);setupDash();showScreen('dashScreen');}
+  catch(e){sessionStorage.removeItem('tsUser');}
 }
 </script>
 </body>
