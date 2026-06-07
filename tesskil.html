@@ -185,16 +185,17 @@
   .leaderboard { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
   .lb-row {
     display:flex; align-items:center; padding:14px 24px;
-    border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.2s;
+    border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.2s; gap:10px;
   }
   .lb-row:last-child { border-bottom:none; }
   .lb-row:hover { background:rgba(0,245,255,0.03); }
   .lb-rank {
-    width:40px; font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900;
+    width:40px; font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900; flex-shrink:0;
   }
   .rank-1 { color:var(--yellow); text-shadow:0 0 10px rgba(255,215,0,0.5); }
   .rank-2 { color:#c0c0c0; }
   .rank-3 { color:#cd7f32; }
+  .lb-avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0; background:#111; }
   .lb-name { flex:1; font-weight:600; font-size:0.95rem; }
   .lb-score { font-family:'Share Tech Mono',monospace; color:var(--accent); font-size:0.9rem; }
   .lb-cat { font-size:0.75rem; color:var(--muted); margin-left:12px; }
@@ -446,6 +447,96 @@
   }
   .modal-close:hover { color:var(--red); }
 
+  /* ===== PROFILE SCREEN ===== */
+  #profileScreen { flex-direction:column; align-items:center; justify-content:center; padding:32px; }
+  .profile-card {
+    background:var(--card); border:1px solid var(--border); border-radius:20px;
+    padding:40px 36px; width:100%; max-width:500px; box-shadow:var(--glow);
+    animation:slideUp 0.4s ease;
+  }
+  .profile-avatar-wrap {
+    position:relative; width:110px; height:110px; margin:0 auto 20px;
+    cursor:pointer;
+  }
+  .profile-avatar {
+    width:110px; height:110px; border-radius:50%;
+    object-fit:cover; border:3px solid var(--accent);
+    box-shadow:0 0 20px rgba(0,245,255,0.3);
+    background:#111;
+  }
+  .profile-avatar-edit {
+    position:absolute; bottom:4px; right:4px;
+    width:30px; height:30px; border-radius:50%;
+    background:var(--accent); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.85rem; color:#000; font-weight:700;
+  }
+  .profile-username {
+    font-family:'Orbitron',monospace; font-size:1.4rem; color:var(--accent);
+    text-align:center; margin-bottom:4px;
+  }
+  .profile-role {
+    text-align:center; color:var(--muted); font-size:0.82rem;
+    letter-spacing:2px; text-transform:uppercase; margin-bottom:28px;
+  }
+  .profile-section { margin-bottom:20px; }
+  .profile-section label {
+    display:block; font-size:0.75rem; letter-spacing:2px;
+    color:var(--accent); text-transform:uppercase; margin-bottom:8px;
+  }
+  .profile-section input {
+    width:100%; padding:12px 14px;
+    background:rgba(0,0,0,0.4); border:1px solid var(--border);
+    border-radius:8px; color:var(--text);
+    font-family:'Share Tech Mono',monospace; font-size:1rem;
+    outline:none; transition:all 0.3s;
+  }
+  .profile-section input:focus { border-color:var(--accent); }
+  .profile-note {
+    font-size:0.78rem; color:var(--muted); margin-top:6px;
+  }
+
+  /* BAN / FREEZE BADGE */
+  .ban-badge {
+    display:inline-block; padding:3px 10px; border-radius:20px;
+    font-size:0.72rem; font-weight:700; margin-left:8px;
+  }
+  .ban-badge.banned { background:rgba(255,34,68,0.2); color:var(--red); border:1px solid var(--red); }
+  .ban-badge.frozen { background:rgba(0,200,255,0.15); color:#00cfff; border:1px solid #00cfff; }
+
+  /* BAN SCREEN */
+  #bannedScreen {
+    position:fixed; inset:0; z-index:99999;
+    background:#000; display:none;
+    flex-direction:column; align-items:center; justify-content:center;
+  }
+  #bannedScreen.show { display:flex; }
+  .ban-icon { font-size:6rem; margin-bottom:16px; animation:pulse 1s infinite alternate; }
+  .ban-title { font-family:'Orbitron',monospace; font-size:2rem; color:var(--red); letter-spacing:4px; margin-bottom:12px; text-shadow:0 0 30px var(--red); }
+  .ban-reason { color:#ff8888; font-size:1rem; margin-bottom:8px; text-align:center; max-width:400px; }
+  .ban-sub { color:var(--muted); font-size:0.82rem; text-align:center; }
+  .freeze-sub { color:#00cfff; font-size:0.9rem; margin-top:8px; text-align:center; }
+
+  /* ADMIN USER MANAGEMENT */
+  .admin-tabs {
+    display:flex; gap:12px; margin-bottom:24px;
+  }
+  .admin-tab {
+    padding:10px 20px; border-radius:8px; border:1px solid var(--border);
+    background:transparent; color:var(--muted); cursor:pointer;
+    font-family:'Rajdhani',sans-serif; font-size:0.9rem; letter-spacing:1px; transition:all 0.25s;
+  }
+  .admin-tab.active { border-color:var(--accent2); color:var(--accent2); background:rgba(255,107,0,0.08); }
+  .btn-ban { padding:5px 12px; background:rgba(255,34,68,0.1); border:1px solid var(--red); border-radius:6px; color:var(--red); cursor:pointer; font-size:0.75rem; font-weight:600; transition:all 0.2s; margin-left:4px; }
+  .btn-ban:hover { background:var(--red); color:#fff; }
+  .btn-freeze { padding:5px 12px; background:rgba(0,200,255,0.1); border:1px solid #00cfff; border-radius:6px; color:#00cfff; cursor:pointer; font-size:0.75rem; font-weight:600; transition:all 0.2s; margin-left:4px; }
+  .btn-freeze:hover { background:#00cfff; color:#000; }
+  .btn-unban { padding:5px 12px; background:rgba(0,255,136,0.1); border:1px solid var(--green); border-radius:6px; color:var(--green); cursor:pointer; font-size:0.75rem; font-weight:600; transition:all 0.2s; margin-left:4px; }
+  .btn-unban:hover { background:var(--green); color:#000; }
+
+  /* FREEZE MODAL */
+  #freezeModal .modal-box { width:420px; }
+
   @media(max-width:600px) {
     .topbar { padding:12px 16px; }
     .dash-content { padding:24px 16px; }
@@ -453,6 +544,9 @@
     .skill-card { padding:20px 14px; }
     .lb-tabs { gap:6px; }
     .lb-tab { padding:6px 10px; font-size:0.75rem; }
+    .profile-card { padding:28px 20px; }
+    .topbar-user { gap:6px; }
+    .btn-logout { padding:6px 10px; font-size:0.72rem; }
   }
 </style>
 </head>
@@ -515,6 +609,7 @@
       <div id="adminBtn" style="display:none">
         <button class="btn-logout" style="border-color:var(--accent2);color:var(--accent2);" onclick="showAdmin()">⚙️ ADMIN</button>
       </div>
+      <button class="btn-logout" style="border-color:var(--green);color:var(--green);" onclick="showProfile()">👤 PROFIL</button>
       <button class="btn-logout" style="border-color:var(--accent);color:var(--accent);" onclick="document.getElementById('changePwModal').classList.add('show');document.getElementById('cpOld').value='';document.getElementById('cpNew').value='';document.getElementById('cpNew2').value='';document.getElementById('cpMsg').textContent='';">🔐 SANDI</button>
       <button class="btn-logout" onclick="doLogout()">KELUAR</button>
     </div>
@@ -646,7 +741,11 @@
     </div>
   </div>
   <div class="admin-content">
-    <div class="admin-title">⚙️ Manajemen Nilai</div>
+    <div class="admin-title">⚙️ ADMIN PANEL</div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" id="tabScores" onclick="switchAdminTab('scores')">📊 Nilai</button>
+      <button class="admin-tab" id="tabUsers" onclick="switchAdminTab('users')">👥 Manajemen User</button>
+    </div>
     <div style="margin-bottom:24px;">
       <button class="btn-approve" style="padding:10px 22px;font-size:0.85rem;" onclick="document.getElementById('adminCreateModal').classList.add('show');document.getElementById('acUser').value='';document.getElementById('acPass').value='';document.getElementById('acMsg').textContent='';">➕ Buat Akun Admin/User</button>
     </div>
@@ -708,6 +807,67 @@
     </div>
     <button class="btn-primary" onclick="doAdminCreateAccount()">✅ BUAT AKUN</button>
     <div class="msg" id="acMsg"></div>
+  </div>
+</div>
+
+<!-- ====== PROFILE SCREEN ====== -->
+<div class="screen" id="profileScreen">
+  <div class="topbar">
+    <div class="topbar-logo">👤 MY PROFILE</div>
+    <div class="topbar-user">
+      <button class="btn-logout" onclick="showDash()">← Dashboard</button>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:center;padding:40px 20px;flex:1;">
+    <div class="profile-card">
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarChange(event)">
+      <div class="profile-avatar-wrap" onclick="document.getElementById('avatarInput').click()">
+        <img class="profile-avatar" id="profileAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23111'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2300f5ff' opacity='0.5'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='18' fill='%2300f5ff' opacity='0.3'/%3E%3C/svg%3E" alt="avatar">
+        <button class="profile-avatar-edit" onclick="event.stopPropagation();document.getElementById('avatarInput').click()">✏️</button>
+      </div>
+      <div class="profile-username" id="profileUsernameDisplay">-</div>
+      <div class="profile-role" id="profileRoleDisplay">user</div>
+
+      <div class="profile-section">
+        <label>🏷️ Display Name (di Leaderboard)</label>
+        <input type="text" id="profileDisplayName" placeholder="nama yang muncul di leaderboard..." maxlength="20">
+        <div class="profile-note">Kosongkan untuk pakai username asli</div>
+      </div>
+
+      <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px;">💾 SIMPAN PROFIL</button>
+      <div class="msg" id="profileMsg"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== BANNED SCREEN ====== -->
+<div id="bannedScreen">
+  <div class="ban-icon">🚫</div>
+  <div class="ban-title" id="banTitle">AKUN DIBLOKIR</div>
+  <div class="ban-reason" id="banReason">Akun kamu telah dibanned secara permanen.</div>
+  <div class="ban-sub">Hubungi admin jika ada pertanyaan.</div>
+  <div class="freeze-sub" id="freezeSub" style="display:none"></div>
+</div>
+
+<!-- FREEZE MODAL -->
+<div class="modal-overlay" id="freezeModal">
+  <div class="modal-box" id="freezeModal" style="width:420px;">
+    <button class="modal-close" onclick="document.getElementById('freezeModal').classList.remove('show')">✕</button>
+    <div class="modal-title">❄️ BEKUKAN AKUN</div>
+    <div style="margin-bottom:12px;color:var(--muted);font-size:0.9rem;">Username: <strong id="freezeTargetUser" style="color:var(--text)"></strong></div>
+    <div class="form-group">
+      <label>Durasi Pembekuan</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+        <button class="lb-tab" onclick="setFreezeDur(3600,'1 Jam')">1 Jam</button>
+        <button class="lb-tab" onclick="setFreezeDur(86400,'1 Hari')">1 Hari</button>
+        <button class="lb-tab" onclick="setFreezeDur(259200,'3 Hari')">3 Hari</button>
+        <button class="lb-tab" onclick="setFreezeDur(604800,'1 Minggu')">1 Minggu</button>
+      </div>
+      <label>Atau Custom (detik)</label>
+      <input type="number" id="freezeDurInput" placeholder="contoh: 3600 = 1 jam..." min="1">
+    </div>
+    <button class="btn-primary" style="background:linear-gradient(135deg,#00cfff,#0077aa);" onclick="doFreezeAccount()">❄️ BEKUKAN</button>
+    <div class="msg" id="freezeMsg"></div>
   </div>
 </div>
 
@@ -1073,8 +1233,8 @@ window.doLogin = async function() {
   const p = document.getElementById('loginPass').value;
   if(!u || !p) return setMsg('loginMsg','Isi username dan password!','err');
   showLoading(true);
-  // Admin bypass
-  if(u === 'Admin' && p === 'Akilganteng111') {
+  // Admin bypass — tidak bisa dibanned
+  if(u === 'Admin' && p === 'akiljelek000') {
     currentUser = { username: 'Admin', role: 'admin' };
     sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
     setupDash(); showScreen('dashScreen'); showLoading(false); return;
@@ -1082,10 +1242,21 @@ window.doLogin = async function() {
   const fakeEmail = u + '@tesskil.app';
   try {
     const cred = await signInWithEmailAndPassword(auth, fakeEmail, p);
-    // Ambil data user dari database
     const snap = await get(ref(db, `users/${cred.user.uid}`));
     const data = snap.val() || {};
-    currentUser = { username: data.username || u, role: data.role || 'user', uid: cred.user.uid };
+    // Cek ban permanen
+    if(data.banned) {
+      await signOut(auth);
+      showBannedScreen(false, data.banReason || 'Akun kamu telah dibanned secara permanen.');
+      showLoading(false); return;
+    }
+    // Cek freeze sementara
+    if(data.frozenUntil && data.frozenUntil > Date.now()) {
+      await signOut(auth);
+      showBannedScreen(true, 'Akun kamu sedang dibekukan sementara.', data.frozenUntil);
+      showLoading(false); return;
+    }
+    currentUser = { username: data.username || u, role: data.role || 'user', uid: cred.user.uid, displayName: data.displayName || '', avatar: data.avatar || '' };
     sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
     setupDash();
     showScreen('dashScreen');
@@ -1105,15 +1276,85 @@ window.doLogout = async function() {
   try { await signOut(auth); } catch(e) {}
   currentUser = null;
   sessionStorage.removeItem('tsUser');
+  document.getElementById('bannedScreen').classList.remove('show');
   showScreen('loginScreen');
   showLogin();
 }
 
 function setupDash() {
-  document.getElementById('userBadge').textContent = '👤 ' + currentUser.username;
-  document.getElementById('dashGreet').textContent = `Halo, ${currentUser.username}! ⚡`;
+  const displayName = currentUser.displayName || currentUser.username;
+  document.getElementById('userBadge').textContent = '👤 ' + displayName;
+  document.getElementById('dashGreet').textContent = `Halo, ${displayName}! ⚡`;
   document.getElementById('adminBtn').style.display = currentUser.role === 'admin' ? 'block' : 'none';
   loadLeaderboard();
+}
+
+// ===== BAN / FREEZE SCREEN =====
+function showBannedScreen(isFrozen, reason, frozenUntil) {
+  const scr = document.getElementById('bannedScreen');
+  scr.classList.add('show');
+  document.getElementById('banTitle').textContent = isFrozen ? '❄️ AKUN DIBEKUKAN' : '🚫 AKUN DIBLOKIR';
+  document.getElementById('banReason').textContent = reason;
+  const freezeSub = document.getElementById('freezeSub');
+  if(isFrozen && frozenUntil) {
+    freezeSub.style.display='block';
+    function updateTimer() {
+      const left = frozenUntil - Date.now();
+      if(left <= 0) { scr.classList.remove('show'); showScreen('loginScreen'); return; }
+      const h = Math.floor(left/3600000);
+      const m = Math.floor((left%3600000)/60000);
+      const s = Math.floor((left%60000)/1000);
+      freezeSub.textContent = `Cair dalam: ${h > 0 ? h+'j ' : ''}${m}m ${s}d`;
+      setTimeout(updateTimer, 1000);
+    }
+    updateTimer();
+  } else {
+    freezeSub.style.display='none';
+  }
+}
+
+// ===== PROFILE =====
+window.showProfile = function() {
+  const img = document.getElementById('profileAvatarImg');
+  document.getElementById('profileUsernameDisplay').textContent = currentUser.username;
+  document.getElementById('profileRoleDisplay').textContent = currentUser.role?.toUpperCase() || 'USER';
+  document.getElementById('profileDisplayName').value = currentUser.displayName || '';
+  if(currentUser.avatar) img.src = currentUser.avatar;
+  document.getElementById('profileMsg').textContent = '';
+  showScreen('profileScreen');
+}
+
+window.handleAvatarChange = function(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024) { alert('Ukuran foto max 2MB!'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    document.getElementById('profileAvatarImg').src = ev.target.result;
+    window._newAvatar = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+window.saveProfile = async function() {
+  if(!currentUser.uid) { document.getElementById('profileMsg').textContent='Admin tidak bisa ganti profil di sini.'; document.getElementById('profileMsg').className='msg err'; return; }
+  const displayName = document.getElementById('profileDisplayName').value.trim().slice(0,20);
+  const avatar = window._newAvatar || currentUser.avatar || '';
+  showLoading(true);
+  try {
+    await update(ref(db, `users/${currentUser.uid}`), { displayName, avatar });
+    currentUser.displayName = displayName;
+    currentUser.avatar = avatar;
+    sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
+    window._newAvatar = null;
+    document.getElementById('profileMsg').textContent = '✅ Profil disimpan!';
+    document.getElementById('profileMsg').className = 'msg ok';
+    setupDash();
+  } catch(e) {
+    document.getElementById('profileMsg').textContent = 'Gagal: '+e.message;
+    document.getElementById('profileMsg').className = 'msg err';
+  }
+  showLoading(false);
 }
 
 // ===== LEADERBOARD PER KATEGORI =====
@@ -1132,7 +1373,7 @@ function loadLeaderboard() {
   });
 }
 
-function renderLeaderboard() {
+async function renderLeaderboard() {
   const lb = document.getElementById('leaderboard');
   const data = window._allScores;
   if(!data) { lb.innerHTML = '<div class="lb-empty">Belum ada nilai. Jadilah yang pertama! 🚀</div>'; return; }
@@ -1142,14 +1383,34 @@ function renderLeaderboard() {
   });
   list.sort((a,b) => b.pct - a.pct);
   if(!list.length) { lb.innerHTML = '<div class="lb-empty">Belum ada nilai disetujui untuk kategori ini 🏆</div>'; return; }
-  const catLabel = {coding:'💻 Coding',termux:'📱 Termux',mtk:'🔢 MTK',ml:'⚔️ ML',ff:'🔥 FF',pubg:'🪖 PUBG',coc:'🏰 COC',roblox:'🧱 Roblox'};
+
+  // Ambil profil user untuk display name & avatar
+  const profileCache = window._profileCache || {};
+  const usersToFetch = [...new Set(list.map(i => i.uid).filter(Boolean))];
+  for(const uid of usersToFetch) {
+    if(!profileCache[uid]) {
+      try {
+        const s = await get(ref(db, `users/${uid}`));
+        profileCache[uid] = s.val() || {};
+      } catch(e) {}
+    }
+  }
+  window._profileCache = profileCache;
+
   lb.innerHTML = list.slice(0,10).map((item,i) => {
     const rank = i+1;
-    let rankClass = rank<=3 ? `rank-${rank}` : '';
-    let medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':`#${rank}`;
+    const rankClass = rank<=3 ? `rank-${rank}` : '';
+    const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':`#${rank}`;
+    const prof = item.uid ? (profileCache[item.uid] || {}) : {};
+    const displayName = prof.displayName || item.username;
+    const avatar = prof.avatar || '';
+    const avatarHtml = avatar
+      ? `<img class="lb-avatar" src="${avatar}" alt="">`
+      : `<div class="lb-avatar" style="display:flex;align-items:center;justify-content:center;font-size:1rem;">👤</div>`;
     return `<div class="lb-row">
       <div class="lb-rank ${rankClass}">${medal}</div>
-      <div class="lb-name">${item.username}</div>
+      ${avatarHtml}
+      <div class="lb-name">${displayName}</div>
       <div class="lb-score">${item.pct}%</div>
     </div>`;
   }).join('');
@@ -1264,6 +1525,7 @@ window.submitScore = async function() {
     const key = push(ref(db, 'scores')).key;
     await set(ref(db, `scores/${key}`), {
       username: currentUser.username,
+      uid: currentUser.uid || null,
       category: r.category,
       score: r.score,
       total: r.total,
@@ -1299,7 +1561,23 @@ window.backFromGiveUp = function() {
 window.retryQuiz = function() { startQuiz(quizCategory); }
 
 // ===== ADMIN PANEL =====
+let adminTab = 'scores';
+window.switchAdminTab = function(tab) {
+  adminTab = tab;
+  document.getElementById('tabScores').className = 'admin-tab' + (tab==='scores' ? ' active' : '');
+  document.getElementById('tabUsers').className = 'admin-tab' + (tab==='users' ? ' active' : '');
+  if(tab === 'scores') loadAdminScores();
+  else loadAdminUsers();
+}
+
 function loadAdminPanel() {
+  adminTab = 'scores';
+  document.getElementById('tabScores').className = 'admin-tab active';
+  document.getElementById('tabUsers').className = 'admin-tab';
+  loadAdminScores();
+}
+
+function loadAdminScores() {
   const tbl = document.getElementById('adminTable');
   onValue(ref(db, 'scores'), snap => {
     const data = snap.val();
@@ -1325,6 +1603,83 @@ function loadAdminPanel() {
       </tbody>
     </table>`;
   });
+}
+
+function loadAdminUsers() {
+  const tbl = document.getElementById('adminTable');
+  tbl.innerHTML = '<div class="lb-empty">Loading users...</div>';
+  onValue(ref(db, 'users'), snap => {
+    const data = snap.val();
+    if(!data) { tbl.innerHTML = '<div class="lb-empty">Tidak ada user.</div>'; return; }
+    const list = Object.entries(data).map(([uid, v]) => ({...v, uid}));
+    list.sort((a,b) => (a.username||'').localeCompare(b.username||''));
+    tbl.innerHTML = `<table class="admin-table">
+      <thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody>${list.map(u => {
+        const isMainAdmin = u.username === 'Admin';
+        let statusBadge = '';
+        if(u.banned) statusBadge = '<span class="ban-badge banned">🚫 BANNED</span>';
+        else if(u.frozenUntil && u.frozenUntil > Date.now()) statusBadge = '<span class="ban-badge frozen">❄️ FROZEN</span>';
+        else statusBadge = '<span style="color:var(--green);font-size:0.82rem;">✅ Aktif</span>';
+        const actions = isMainAdmin ? '<span style="color:var(--muted);font-size:0.8rem;">Protected</span>' : `
+          ${u.banned
+            ? `<button class="btn-unban" onclick="doUnban('${u.uid}','${u.username}')">✅ Unban</button>`
+            : `<button class="btn-ban" onclick="doBan('${u.uid}','${u.username}')">🚫 Ban</button>
+               <button class="btn-freeze" onclick="openFreezeModal('${u.uid}','${u.username}')">❄️ Bekukan</button>`
+          }
+          ${(u.frozenUntil && u.frozenUntil > Date.now() && !u.banned) ? `<button class="btn-unban" onclick="doUnfreeze('${u.uid}')">🔥 Cairkan</button>` : ''}
+        `;
+        return `<tr>
+          <td><strong>${u.username || '-'}</strong>${u.displayName ? `<br><span style="color:var(--muted);font-size:0.78rem;">${u.displayName}</span>` : ''}</td>
+          <td><span style="color:${u.role==='admin'?'var(--accent2)':'var(--muted)'}">${u.role?.toUpperCase()||'USER'}</span></td>
+          <td>${statusBadge}</td>
+          <td>${actions}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>`;
+  });
+}
+
+window.doBan = async function(uid, username) {
+  if(!confirm(`Ban permanen akun "${username}"?`)) return;
+  const reason = prompt('Alasan ban (opsional):') || 'Melanggar aturan.';
+  await update(ref(db, `users/${uid}`), { banned: true, banReason: reason, frozenUntil: null });
+  showNotif(`Akun "${username}" telah dibanned!`);
+}
+
+window.doUnban = async function(uid, username) {
+  await update(ref(db, `users/${uid}`), { banned: false, banReason: null });
+  showNotif(`Akun "${username}" telah di-unban.`);
+}
+
+window.doUnfreeze = async function(uid) {
+  await update(ref(db, `users/${uid}`), { frozenUntil: null });
+  showNotif('Akun dicairkan.');
+}
+
+let _freezeTargetUid = null;
+let _freezeDurSecs = 3600;
+window.openFreezeModal = function(uid, username) {
+  _freezeTargetUid = uid;
+  document.getElementById('freezeTargetUser').textContent = username;
+  document.getElementById('freezeDurInput').value = '';
+  document.getElementById('freezeMsg').textContent = '';
+  _freezeDurSecs = 3600;
+  document.getElementById('freezeModal').classList.add('show');
+}
+window.setFreezeDur = function(secs, label) {
+  _freezeDurSecs = secs;
+  document.getElementById('freezeDurInput').value = secs;
+}
+window.doFreezeAccount = async function() {
+  const custom = document.getElementById('freezeDurInput').value;
+  const secs = parseInt(custom) || _freezeDurSecs;
+  if(!secs || secs < 1) { document.getElementById('freezeMsg').textContent='Masukkan durasi!'; document.getElementById('freezeMsg').className='msg err'; return; }
+  const frozenUntil = Date.now() + secs*1000;
+  await update(ref(db, `users/${_freezeTargetUid}`), { frozenUntil, banned: false });
+  document.getElementById('freezeModal').classList.remove('show');
+  showNotif(`Akun dibekukan selama ${secs} detik.`);
 }
 
 window.approveScore = async function(id) {
