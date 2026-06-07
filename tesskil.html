@@ -1253,17 +1253,21 @@ window.doRegister = async function() {
   const p = document.getElementById('regPass').value;
   const p2 = document.getElementById('regPass2').value;
   if(!u || !p) return setMsg('regMsg','Isi semua field!','err');
+  if(u.length < 3) return setMsg('regMsg','Username minimal 3 karakter!','err');
   if(p.length < 6) return setMsg('regMsg','Password minimal 6 karakter!','err');
   if(p !== p2) return setMsg('regMsg','Password tidak cocok!','err');
   if(u.toLowerCase() === 'admin') return setMsg('regMsg','Username tidak boleh "Admin"!','err');
   showLoading(true);
-  // Pakai email fake: username@tesskil.app
   const fakeEmail = u + '@tesskil.app';
   try {
+    // Cek dulu apakah username sudah ada
+    const usnap = await get(ref(db, `usernames/${u}`));
+    if(usnap.exists()) {
+      setMsg('regMsg','Username sudah dipakai!','err');
+      showLoading(false); return;
+    }
     const cred = await createUserWithEmailAndPassword(auth, fakeEmail, p);
-    // Simpan username ke database
     await set(ref(db, `users/${cred.user.uid}`), { username: u, role: 'user', createdAt: Date.now() });
-    // Simpan mapping username -> uid
     await set(ref(db, `usernames/${u}`), cred.user.uid);
     setMsg('regMsg','✅ Akun berhasil dibuat! Silakan login.','ok');
     await signOut(auth);
@@ -1273,6 +1277,8 @@ window.doRegister = async function() {
       setMsg('regMsg','Username sudah dipakai!','err');
     } else if(e.code === 'auth/network-request-failed') {
       setMsg('regMsg','Gagal koneksi internet!','err');
+    } else if(e.code === 'auth/weak-password') {
+      setMsg('regMsg','Password terlalu lemah!','err');
     } else {
       setMsg('regMsg','Error: '+e.message,'err');
     }
@@ -1436,10 +1442,18 @@ window.switchLbTab = function(cat, btn) {
 }
 
 function loadLeaderboard() {
-  onValue(ref(db, 'scores'), snap => {
-    window._allScores = snap.val();
-    renderLeaderboard();
-  });
+  const lb = document.getElementById('leaderboard');
+  lb.innerHTML = '<div class="lb-empty">⏳ Loading...</div>';
+  try {
+    onValue(ref(db, 'scores'), snap => {
+      window._allScores = snap.val();
+      renderLeaderboard();
+    }, err => {
+      lb.innerHTML = `<div class="lb-empty">❌ Gagal load data: ${esc(err.message)}</div>`;
+    });
+  } catch(e) {
+    lb.innerHTML = `<div class="lb-empty">❌ Error: ${esc(e.message)}</div>`;
+  }
 }
 
 async function renderLeaderboard() {
@@ -1648,13 +1662,15 @@ function loadAdminPanel() {
 
 function loadAdminScores() {
   const tbl = document.getElementById('adminTable');
-  onValue(ref(db, 'scores'), snap => {
-    const data = snap.val();
-    if(!data) { tbl.innerHTML = '<div class="lb-empty">Tidak ada pengajuan nilai.</div>'; return; }
-    const list = Object.entries(data).map(([k,v]) => ({...v, id:k}));
-    list.sort((a,b) => b.submittedAt - a.submittedAt);
-    if(!list.length) { tbl.innerHTML = '<div class="lb-empty">Tidak ada data pengajuan.</div>'; return; }
-    tbl.innerHTML = `<table class="admin-table">
+  tbl.innerHTML = '<div class="lb-empty">⏳ Loading nilai...</div>';
+  try {
+    onValue(ref(db, 'scores'), snap => {
+      const data = snap.val();
+      if(!data) { tbl.innerHTML = '<div class="lb-empty">Tidak ada pengajuan nilai.</div>'; return; }
+      const list = Object.entries(data).map(([k,v]) => ({...v, id:k}));
+      list.sort((a,b) => b.submittedAt - a.submittedAt);
+      if(!list.length) { tbl.innerHTML = '<div class="lb-empty">Tidak ada data pengajuan.</div>'; return; }
+      tbl.innerHTML = `<table class="admin-table">
       <thead><tr><th>Username</th><th>Kategori</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr></thead>
       <tbody>${list.map(item => `
         <tr>
@@ -1671,15 +1687,21 @@ function loadAdminScores() {
         </tr>`).join('')}
       </tbody>
     </table>`;
-  });
+    }, err => {
+      tbl.innerHTML = `<div class="lb-empty">❌ Gagal load nilai: ${esc(err.message)}</div>`;
+    });
+  } catch(e) {
+    tbl.innerHTML = `<div class="lb-empty">❌ Error: ${esc(e.message)}</div>`;
+  }
 }
 
 function loadAdminUsers() {
   const tbl = document.getElementById('adminTable');
-  tbl.innerHTML = '<div class="lb-empty">Loading users...</div>';
-  onValue(ref(db, 'users'), snap => {
-    const data = snap.val();
-    if(!data) { tbl.innerHTML = '<div class="lb-empty">Tidak ada user.</div>'; return; }
+  tbl.innerHTML = '<div class="lb-empty">⏳ Loading users...</div>';
+  try {
+    onValue(ref(db, 'users'), snap => {
+      const data = snap.val();
+      if(!data) { tbl.innerHTML = '<div class="lb-empty">Tidak ada user.</div>'; return; }
     const list = Object.entries(data).map(([uid, v]) => ({...v, uid}));
     list.sort((a,b) => (a.username||'').localeCompare(b.username||''));
     tbl.innerHTML = `<table class="admin-table">
@@ -1709,7 +1731,12 @@ function loadAdminUsers() {
       }).join('')}
       </tbody>
     </table>`;
+  }, err => {
+    tbl.innerHTML = `<div class="lb-empty">❌ Gagal load users: ${esc(err.message)}</div>`;
   });
+  } catch(e) {
+    tbl.innerHTML = `<div class="lb-empty">❌ Error: ${esc(e.message)}</div>`;
+  }
 }
 
 window.doBan = async function(uid, username) {
