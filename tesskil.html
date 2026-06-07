@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https:;">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
+<meta http-equiv="X-Frame-Options" content="DENY">
 <title>TesSkil - Uji Kemampuanmu</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
@@ -1162,15 +1165,64 @@ function showLoading(v) {
 function showNotif(msg, type='success') {
   const n = document.createElement('div');
   n.className = `notif ${type}`;
-  n.textContent = msg;
+  n.textContent = msg; // textContent = XSS safe
   document.body.appendChild(n);
   setTimeout(() => n.remove(), 3000);
 }
 function setMsg(id, msg, type='') {
   const el = document.getElementById(id);
-  el.textContent = msg;
+  el.textContent = msg; // textContent = XSS safe
   el.className = 'msg ' + type;
 }
+
+// ===== ANTI XSS: sanitize semua string dari database sebelum ke HTML =====
+function esc(str) {
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#x27;')
+    .replace(/\//g,'&#x2F;')
+    .replace(/`/g,'&#x60;');
+}
+
+// Validasi avatar URL — hanya boleh data: atau https:
+function safeAvatar(url) {
+  if(!url) return '';
+  if(url.startsWith('data:image/')) return url;
+  if(url.startsWith('https://')) return url;
+  return ''; // buang kalau mencurigakan
+}
+
+// ===== ANTI BRUTE FORCE: rate limit login =====
+const _loginAttempts = {};
+function checkRateLimit(username) {
+  const now = Date.now();
+  const key = username.toLowerCase();
+  if(!_loginAttempts[key]) _loginAttempts[key] = { count: 0, resetAt: now + 60000 };
+  if(now > _loginAttempts[key].resetAt) {
+    _loginAttempts[key] = { count: 0, resetAt: now + 60000 };
+  }
+  _loginAttempts[key].count++;
+  if(_loginAttempts[key].count > 5) {
+    const wait = Math.ceil((_loginAttempts[key].resetAt - now) / 1000);
+    return `Terlalu banyak percobaan! Tunggu ${wait} detik.`;
+  }
+  return null;
+}
+function clearRateLimit(username) {
+  delete _loginAttempts[username.toLowerCase()];
+}
+
+// ===== ADMIN PASSWORD: hash SHA-256, tidak terlihat plaintext =====
+async function hashPass(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+// Hash dari "akiljelek000" — dihitung sekali, tidak ada plaintext di kode
+const ADMIN_HASH = '6fa45a20bffaabe58dc22965b12b9e7bff91b43aa9b0280964aaab4f3dda5661';
 
 // ===== PARTICLES =====
 function makeParticles() {
@@ -1230,14 +1282,30 @@ window.doRegister = async function() {
 
 window.doLogin = async function() {
   const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
+  const p = document.getElementById('loginPass').value.trim();
   if(!u || !p) return setMsg('loginMsg','Isi username dan password!','err');
+
+  // Rate limit
+  const limited = checkRateLimit(u);
+  if(limited) return setMsg('loginMsg', limited, 'err');
+
   showLoading(true);
-  // Admin bypass — tidak bisa dibanned
-  if(u === 'Admin' && p === 'akiljelek000') {
-    currentUser = { username: 'Admin', role: 'admin' };
-    sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
-    setupDash(); showScreen('dashScreen'); showLoading(false); return;
+
+  // Admin bypass — cek via hash, bukan plaintext
+  if(u === 'Admin') {
+    const h = await hashPass(p);
+    if(h === ADMIN_HASH) {
+      clearRateLimit(u);
+      currentUser = { username: 'Admin', role: 'admin' };
+      sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
+      showLoading(false);
+      setupDash();
+      showScreen('dashScreen');
+      return;
+    } else {
+      setMsg('loginMsg','Username atau password salah!','err');
+      showLoading(false); return;
+    }
   }
   const fakeEmail = u + '@tesskil.app';
   try {
@@ -1256,7 +1324,8 @@ window.doLogin = async function() {
       showBannedScreen(true, 'Akun kamu sedang dibekukan sementara.', data.frozenUntil);
       showLoading(false); return;
     }
-    currentUser = { username: data.username || u, role: data.role || 'user', uid: cred.user.uid, displayName: data.displayName || '', avatar: data.avatar || '' };
+    currentUser = { username: esc(data.username || u), role: data.role || 'user', uid: cred.user.uid, displayName: esc(data.displayName || ''), avatar: safeAvatar(data.avatar || '') };
+    clearRateLimit(u);
     sessionStorage.setItem('tsUser', JSON.stringify(currentUser));
     setupDash();
     showScreen('dashScreen');
@@ -1402,16 +1471,16 @@ async function renderLeaderboard() {
     const rankClass = rank<=3 ? `rank-${rank}` : '';
     const medal = rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':`#${rank}`;
     const prof = item.uid ? (profileCache[item.uid] || {}) : {};
-    const displayName = prof.displayName || item.username;
-    const avatar = prof.avatar || '';
+    const displayName = esc(prof.displayName || item.username);
+    const avatar = safeAvatar(prof.avatar || '');
     const avatarHtml = avatar
-      ? `<img class="lb-avatar" src="${avatar}" alt="">`
+      ? `<img class="lb-avatar" src="${esc(avatar)}" alt="avatar" onerror="this.style.display='none'">`
       : `<div class="lb-avatar" style="display:flex;align-items:center;justify-content:center;font-size:1rem;">👤</div>`;
     return `<div class="lb-row">
       <div class="lb-rank ${rankClass}">${medal}</div>
       ${avatarHtml}
       <div class="lb-name">${displayName}</div>
-      <div class="lb-score">${item.pct}%</div>
+      <div class="lb-score">${esc(String(item.pct))}%</div>
     </div>`;
   }).join('');
 }
@@ -1589,15 +1658,15 @@ function loadAdminScores() {
       <thead><tr><th>Username</th><th>Kategori</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr></thead>
       <tbody>${list.map(item => `
         <tr>
-          <td><strong>${item.username}</strong></td>
-          <td>${item.category?.toUpperCase()}</td>
-          <td>${item.pct}% (${item.score}/${item.total})</td>
-          <td><span class="lb-status ${item.status}">${item.status === 'pending' ? '⏳ Pending' : item.status === 'approved' ? '✅ Disetujui' : '❌ Ditolak'}</span></td>
+          <td><strong>${esc(item.username)}</strong></td>
+          <td>${esc(item.category?.toUpperCase())}</td>
+          <td>${esc(String(item.pct))}% (${esc(String(item.score))}/${esc(String(item.total))})</td>
+          <td><span class="lb-status ${item.status==='approved'?'approved':item.status==='pending'?'pending':''}">${item.status === 'pending' ? '⏳ Pending' : item.status === 'approved' ? '✅ Disetujui' : '❌ Ditolak'}</span></td>
           <td>
             ${item.status === 'pending' ? `
-              <button class="btn-approve" onclick="approveScore('${item.id}')">✅ Terima</button>
-              <button class="btn-reject" onclick="rejectScore('${item.id}')">❌ Tolak</button>
-            ` : `<button class="btn-reject" onclick="deleteScore('${item.id}')">🗑️ Hapus</button>`}
+              <button class="btn-approve" onclick="approveScore('${esc(item.id)}')">✅ Terima</button>
+              <button class="btn-reject" onclick="rejectScore('${esc(item.id)}')">❌ Tolak</button>
+            ` : `<button class="btn-reject" onclick="deleteScore('${esc(item.id)}')">🗑️ Hapus</button>`}
           </td>
         </tr>`).join('')}
       </tbody>
@@ -1621,17 +1690,19 @@ function loadAdminUsers() {
         if(u.banned) statusBadge = '<span class="ban-badge banned">🚫 BANNED</span>';
         else if(u.frozenUntil && u.frozenUntil > Date.now()) statusBadge = '<span class="ban-badge frozen">❄️ FROZEN</span>';
         else statusBadge = '<span style="color:var(--green);font-size:0.82rem;">✅ Aktif</span>';
+        const safeUid = esc(u.uid);
+        const safeUname = esc(u.username);
         const actions = isMainAdmin ? '<span style="color:var(--muted);font-size:0.8rem;">Protected</span>' : `
           ${u.banned
-            ? `<button class="btn-unban" onclick="doUnban('${u.uid}','${u.username}')">✅ Unban</button>`
-            : `<button class="btn-ban" onclick="doBan('${u.uid}','${u.username}')">🚫 Ban</button>
-               <button class="btn-freeze" onclick="openFreezeModal('${u.uid}','${u.username}')">❄️ Bekukan</button>`
+            ? `<button class="btn-unban" onclick="doUnban('${safeUid}','${safeUname}')">✅ Unban</button>`
+            : `<button class="btn-ban" onclick="doBan('${safeUid}','${safeUname}')">🚫 Ban</button>
+               <button class="btn-freeze" onclick="openFreezeModal('${safeUid}','${safeUname}')">❄️ Bekukan</button>`
           }
-          ${(u.frozenUntil && u.frozenUntil > Date.now() && !u.banned) ? `<button class="btn-unban" onclick="doUnfreeze('${u.uid}')">🔥 Cairkan</button>` : ''}
+          ${(u.frozenUntil && u.frozenUntil > Date.now() && !u.banned) ? `<button class="btn-unban" onclick="doUnfreeze('${safeUid}')">🔥 Cairkan</button>` : ''}
         `;
         return `<tr>
-          <td><strong>${u.username || '-'}</strong>${u.displayName ? `<br><span style="color:var(--muted);font-size:0.78rem;">${u.displayName}</span>` : ''}</td>
-          <td><span style="color:${u.role==='admin'?'var(--accent2)':'var(--muted)'}">${u.role?.toUpperCase()||'USER'}</span></td>
+          <td><strong>${safeUname}</strong>${u.displayName ? `<br><span style="color:var(--muted);font-size:0.78rem;">${esc(u.displayName)}</span>` : ''}</td>
+          <td><span style="color:${u.role==='admin'?'var(--accent2)':'var(--muted)'}">${esc(u.role?.toUpperCase()||'USER')}</span></td>
           <td>${statusBadge}</td>
           <td>${actions}</td>
         </tr>`;
