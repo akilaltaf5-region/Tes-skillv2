@@ -1,1624 +1,328 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src https://*.firebaseio.com wss://*.firebaseio.com https://*.googleapis.com https://*.firebase.com https:;">
-<meta http-equiv="X-Content-Type-Options" content="nosniff">
-<meta http-equiv="X-Frame-Options" content="DENY">
-<title>TesSkil - Uji Kemampuanmu</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #050a0f;
-    --bg2: #0a1220;
-    --card: #0d1a2a;
-    --accent: #00f5ff;
-    --accent2: #ff6b00;
-    --green: #00ff88;
-    --red: #ff2244;
-    --yellow: #ffd700;
-    --text: #e0f0ff;
-    --muted: #4a6a8a;
-    --border: rgba(0,245,255,0.15);
-    --glow: 0 0 20px rgba(0,245,255,0.3);
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Rajdhani', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Website Tutup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Space+Mono:ital@0;1&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  /* PARTICLES BG */
-  #particles { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
-  .particle {
-    position:absolute; border-radius:50%;
-    background: var(--accent); opacity:0.15;
-    animation: float linear infinite;
-  }
-  @keyframes float {
-    0% { transform: translateY(100vh) rotate(0deg); opacity:0; }
-    10% { opacity:0.15; }
-    90% { opacity:0.15; }
-    100% { transform: translateY(-10px) rotate(720deg); opacity:0; }
-  }
+    :root {
+      --bg: #0a0a0a;
+      --red: #e03c31;
+      --orange: #f5a623;
+      --cream: #f0ead6;
+      --muted: #555;
+      --dim: #222;
+    }
 
-  /* SCREENS */
-  .screen { position:relative; z-index:1; min-height:100vh; display:none; }
-  .screen.active { display:flex; }
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Space Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
 
-  /* ===== LOGIN SCREEN ===== */
-  #loginScreen {
-    align-items:center; justify-content:center;
-    background: radial-gradient(ellipse at 20% 50%, rgba(0,245,255,0.05) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 20%, rgba(255,107,0,0.05) 0%, transparent 60%);
-  }
-  .login-container {
-    width: 420px; max-width: 95vw;
-    background: rgba(13,26,42,0.9);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 48px 40px;
-    box-shadow: var(--glow), 0 40px 80px rgba(0,0,0,0.6);
-    backdrop-filter: blur(20px);
-    animation: slideUp 0.6s ease;
-  }
-  @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
-  .login-logo {
-    text-align:center; margin-bottom:32px;
-  }
-  .login-logo h1 {
-    font-family:'Orbitron',monospace;
-    font-size:2.4rem; font-weight:900;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    letter-spacing:4px;
-  }
-  .login-logo p { color:var(--muted); font-size:0.85rem; margin-top:6px; letter-spacing:2px; text-transform:uppercase; }
-  .form-group { margin-bottom:20px; }
-  .form-group label {
-    display:block; font-size:0.8rem; letter-spacing:2px; text-transform:uppercase;
-    color:var(--accent); margin-bottom:8px;
-  }
-  .form-group input {
-    width:100%; padding:14px 16px;
-    background: rgba(0,0,0,0.4); border:1px solid var(--border);
-    border-radius:8px; color:var(--text);
-    font-family:'Share Tech Mono',monospace; font-size:1rem;
-    outline:none; transition:all 0.3s;
-  }
-  .form-group input:focus {
-    border-color:var(--accent);
-    box-shadow:0 0 0 3px rgba(0,245,255,0.1);
-  }
-  .btn-primary {
-    width:100%; padding:16px; margin-top:8px;
-    background: linear-gradient(135deg, var(--accent), #0099cc);
-    border:none; border-radius:8px; color:#000;
-    font-family:'Orbitron',monospace; font-size:0.9rem; font-weight:700;
-    letter-spacing:2px; cursor:pointer; transition:all 0.3s;
-    text-transform:uppercase;
-  }
-  .btn-primary:hover { transform:translateY(-2px); box-shadow:var(--glow); }
-  .btn-secondary {
-    width:100%; padding:12px; margin-top:10px;
-    background: transparent; border:1px solid var(--border);
-    border-radius:8px; color:var(--muted);
-    font-family:'Rajdhani',sans-serif; font-size:0.9rem;
-    cursor:pointer; transition:all 0.3s; letter-spacing:1px;
-  }
-  .btn-secondary:hover { border-color:var(--accent); color:var(--accent); }
-  .msg { text-align:center; font-size:0.85rem; margin-top:12px; min-height:20px; }
-  .msg.err { color:var(--red); }
-  .msg.ok { color:var(--green); }
+    /* grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.08'/%3E%3C/svg%3E");
+      opacity: 0.18;
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  /* REGISTER FORM */
-  #registerBox { display:none; }
+    /* animated scanlines */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.07) 2px,
+        rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
 
-  /* ===== DASHBOARD ===== */
-  #dashScreen { flex-direction:column; }
-  .topbar {
-    position:sticky; top:0; z-index:100;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:16px 32px;
-    background: rgba(5,10,15,0.9);
-    border-bottom:1px solid var(--border);
-    backdrop-filter:blur(20px);
-  }
-  .topbar-logo {
-    font-family:'Orbitron',monospace; font-size:1.3rem; font-weight:900;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  }
-  .topbar-user { display:flex; align-items:center; gap:12px; }
-  .user-badge {
-    background:rgba(0,245,255,0.1); border:1px solid var(--border);
-    border-radius:20px; padding:6px 16px;
-    font-size:0.85rem; letter-spacing:1px;
-  }
-  .btn-logout {
-    padding:8px 18px; background:transparent;
-    border:1px solid var(--red); border-radius:20px;
-    color:var(--red); cursor:pointer; font-size:0.8rem;
-    letter-spacing:1px; transition:all 0.3s;
-  }
-  .btn-logout:hover { background:var(--red); color:#fff; }
+    .container {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 2rem;
+      max-width: 700px;
+      width: 100%;
+      animation: fadeIn 1.2s ease both;
+    }
 
-  .dash-content { padding:40px 32px; max-width:1100px; margin:0 auto; width:100%; }
-  .dash-hero { text-align:center; margin-bottom:48px; }
-  .dash-hero h2 {
-    font-family:'Orbitron',monospace; font-size:2rem; font-weight:700;
-    color:var(--accent); margin-bottom:8px;
-  }
-  .dash-hero p { color:var(--muted); font-size:1rem; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
-  .skill-grid {
-    display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:24px; margin-bottom:48px;
-  }
-  .skill-card {
-    background: var(--card); border:1px solid var(--border);
-    border-radius:16px; padding:32px 24px;
-    text-align:center; cursor:pointer;
-    transition:all 0.35s; position:relative; overflow:hidden;
-  }
-  .skill-card::before {
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(135deg,transparent,rgba(0,245,255,0.05));
-    opacity:0; transition:opacity 0.3s;
-  }
-  .skill-card:hover { transform:translateY(-6px); border-color:var(--accent); box-shadow:var(--glow); }
-  .skill-card:hover::before { opacity:1; }
-  .skill-icon { font-size:3rem; margin-bottom:16px; }
-  .skill-name {
-    font-family:'Orbitron',monospace; font-size:1rem; font-weight:700;
-    color:var(--accent); letter-spacing:2px; margin-bottom:8px;
-  }
-  .skill-desc { font-size:0.82rem; color:var(--muted); }
+    .stamp {
+      display: inline-block;
+      border: 3px solid var(--red);
+      color: var(--red);
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.5rem, 10vw, 5rem);
+      letter-spacing: 0.15em;
+      padding: 0.2em 0.5em;
+      transform: rotate(-4deg);
+      text-transform: uppercase;
+      position: relative;
+      margin-bottom: 2.5rem;
+      animation: flicker 3s infinite;
+      box-shadow: inset 0 0 0 3px var(--red), 0 0 30px rgba(224,60,49,0.3);
+    }
+    .stamp::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border: 1px dashed rgba(224,60,49,0.4);
+    }
 
-  /* LEADERBOARD */
-  .section-title {
-    font-family:'Orbitron',monospace; font-size:1.1rem; font-weight:700;
-    color:var(--accent2); letter-spacing:3px; text-transform:uppercase;
-    margin-bottom:20px; border-left:3px solid var(--accent2); padding-left:12px;
-  }
-  .leaderboard { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
-  .lb-row {
-    display:flex; align-items:center; padding:14px 24px;
-    border-bottom:1px solid rgba(255,255,255,0.04); transition:background 0.2s; gap:10px;
-  }
-  .lb-row:last-child { border-bottom:none; }
-  .lb-row:hover { background:rgba(0,245,255,0.03); }
-  .lb-rank {
-    width:40px; font-family:'Orbitron',monospace; font-size:1.2rem; font-weight:900; flex-shrink:0;
-  }
-  .rank-1 { color:var(--yellow); text-shadow:0 0 10px rgba(255,215,0,0.5); }
-  .rank-2 { color:#c0c0c0; }
-  .rank-3 { color:#cd7f32; }
-  .lb-avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid var(--border); flex-shrink:0; background:#111; }
-  .lb-name { flex:1; font-weight:600; font-size:0.95rem; }
-  .lb-score { font-family:'Share Tech Mono',monospace; color:var(--accent); font-size:0.9rem; }
-  .lb-cat { font-size:0.75rem; color:var(--muted); margin-left:12px; }
-  .lb-status {
-    font-size:0.72rem; padding:3px 10px; border-radius:20px; margin-left:8px; font-weight:600;
-  }
-  .lb-status.pending { background:rgba(255,165,0,0.15); color:orange; border:1px solid rgba(255,165,0,0.3); }
-  .lb-status.approved { background:rgba(0,255,136,0.1); color:var(--green); border:1px solid rgba(0,255,136,0.3); }
-  .lb-empty { padding:32px; text-align:center; color:var(--muted); }
+    @keyframes flicker {
+      0%,100% { opacity: 1; }
+      92% { opacity: 1; }
+      93% { opacity: 0.6; }
+      94% { opacity: 1; }
+      96% { opacity: 0.7; }
+      97% { opacity: 1; }
+    }
 
-  /* ===== QUIZ SCREEN ===== */
-  #quizScreen { flex-direction:column; align-items:center; justify-content:center; padding:32px; }
-  .quiz-wrapper { width:100%; max-width:700px; }
-  .quiz-header { margin-bottom:32px; text-align:center; }
-  .quiz-title {
-    font-family:'Orbitron',monospace; font-size:1.6rem; font-weight:900;
-    color:var(--accent); margin-bottom:8px;
-  }
-  .quiz-progress-bar {
-    height:4px; background:rgba(255,255,255,0.1); border-radius:2px; margin:16px 0;
-  }
-  .quiz-progress-fill {
-    height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2));
-    border-radius:2px; transition:width 0.4s;
-  }
-  .quiz-meta { display:flex; justify-content:space-between; font-size:0.8rem; color:var(--muted); }
-  .quiz-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:16px; padding:36px; margin-bottom:24px;
-    box-shadow:var(--glow);
-  }
-  .quiz-q {
-    font-size:1.1rem; font-weight:700; line-height:1.6; margin-bottom:28px; color:#ffffff;
-    text-shadow: 0 0 20px rgba(0,245,255,0.2);
-  }
-  .quiz-options { display:grid; gap:12px; }
-  .quiz-opt {
-    padding:16px 20px;
-    background:rgba(255,255,255,0.07); border:1px solid rgba(0,245,255,0.25);
-    border-radius:10px; cursor:pointer; transition:all 0.25s;
-    font-size:1rem; text-align:left; font-weight:600;
-    color:#ffffff;
-    display:flex; align-items:center; gap:12px;
-  }
-  .quiz-opt:hover { border-color:var(--accent); background:rgba(0,245,255,0.12); color:#fff; }
-  .quiz-opt.selected { border-color:var(--accent); background:rgba(0,245,255,0.15); color:#fff; }
-  .quiz-opt.correct { border-color:var(--green); background:rgba(0,255,136,0.15); color:var(--green); font-weight:700; }
-  .quiz-opt.wrong { border-color:var(--red); background:rgba(255,34,68,0.15); color:var(--red); font-weight:700; }
-  .quiz-opt:disabled { cursor:not-allowed; opacity:0.7; }
-  .opt-letter {
-    width:30px; height:30px; border-radius:50%; border:2px solid rgba(0,245,255,0.4);
-    display:flex; align-items:center; justify-content:center;
-    font-family:'Orbitron',monospace; font-size:0.75rem; font-weight:700; flex-shrink:0;
-    color:var(--accent); background:rgba(0,245,255,0.08);
-  }
-  .quiz-nav { display:flex; gap:12px; justify-content:flex-end; }
-  .btn-quiz {
-    padding:12px 28px; border-radius:8px; border:none; cursor:pointer;
-    font-family:'Orbitron',monospace; font-size:0.8rem; font-weight:700; letter-spacing:1px;
-    transition:all 0.3s;
-  }
-  .btn-next { background:linear-gradient(135deg,var(--accent),#0099cc); color:#000; }
-  .btn-next:disabled { opacity:0.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
-  .btn-next:hover { transform:translateY(-2px); box-shadow:var(--glow); }
-  .btn-give-up {
-    background:transparent; border:1px solid var(--red); color:var(--red);
-    padding:10px 20px; border-radius:8px; cursor:pointer;
-    font-family:'Rajdhani',sans-serif; font-size:0.85rem; letter-spacing:1px; transition:all 0.3s;
-  }
-  .btn-give-up:hover { background:var(--red); color:#fff; }
+    .subtitle {
+      font-size: clamp(0.75rem, 2.5vw, 0.95rem);
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      animation: fadeIn 1.4s 0.3s ease both;
+    }
 
-  /* GIVE UP ANIMATION */
-  #giveUpOverlay {
-    display:none; position:fixed; inset:0; z-index:9999;
-    background:rgba(0,0,0,0.95); align-items:center; justify-content:center;
-    flex-direction:column;
-  }
-  #giveUpOverlay.show { display:flex; animation:fadeIn 0.3s; }
-  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-  .giveup-anim {
-    font-size:8rem; animation:shakeDown 0.6s ease forwards;
-    margin-bottom:16px;
-  }
-  @keyframes shakeDown {
-    0%{transform:scale(0) rotate(-180deg);opacity:0}
-    50%{transform:scale(1.3) rotate(10deg)}
-    100%{transform:scale(1) rotate(0deg);opacity:1}
-  }
-  .giveup-yah {
-    font-family:'Orbitron',monospace; font-size:3rem; font-weight:900;
-    color:var(--red); letter-spacing:6px; text-shadow:0 0 30px var(--red);
-    animation:pulse 0.8s ease infinite alternate;
-    margin-bottom:8px;
-  }
-  .giveup-weak {
-    font-family:'Rajdhani',sans-serif; font-size:1.3rem; color:#ff8888;
-    letter-spacing:3px; margin-bottom:32px;
-    animation:pulse 1s ease infinite alternate;
-  }
-  @keyframes pulse { from{opacity:0.6} to{opacity:1} }
-  .btn-back-dash {
-    padding:14px 36px; background:transparent;
-    border:2px solid var(--accent); border-radius:8px; color:var(--accent);
-    font-family:'Orbitron',monospace; font-size:0.9rem; letter-spacing:2px;
-    cursor:pointer; transition:all 0.3s;
-  }
-  .btn-back-dash:hover { background:var(--accent); color:#000; }
+    .reason {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1rem, 3vw, 1.3rem);
+      color: var(--cream);
+      margin-bottom: 3rem;
+      line-height: 1.6;
+      animation: fadeIn 1.4s 0.5s ease both;
+    }
+    .reason span {
+      color: var(--orange);
+      font-style: italic;
+    }
 
-  /* RESULT SCREEN */
-  #resultScreen { flex-direction:column; align-items:center; justify-content:center; padding:32px; }
-  .result-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:20px; padding:48px; text-align:center;
-    max-width:500px; width:100%; box-shadow:var(--glow);
-    animation:slideUp 0.5s ease;
-  }
-  .result-emoji { font-size:5rem; margin-bottom:16px; }
-  .result-title {
-    font-family:'Orbitron',monospace; font-size:1.8rem; font-weight:900;
-    margin-bottom:8px;
-  }
-  .result-score {
-    font-family:'Orbitron',monospace; font-size:4rem; font-weight:900; margin:16px 0;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  }
-  .result-detail { color:var(--muted); margin-bottom:24px; font-size:0.95rem; }
-  .result-pass { color:var(--green); font-size:1.1rem; font-weight:700; margin-bottom:24px; }
-  .result-fail { color:var(--red); font-size:1.1rem; font-weight:700; margin-bottom:24px; }
-  .result-actions { display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
-  .btn-submit-score {
-    padding:12px 28px; background:linear-gradient(135deg,var(--green),#00cc66);
-    border:none; border-radius:8px; color:#000; font-family:'Orbitron',monospace;
-    font-size:0.8rem; font-weight:700; letter-spacing:1px; cursor:pointer; transition:all 0.3s;
-  }
-  .btn-submit-score:hover { transform:translateY(-2px); box-shadow:0 0 20px rgba(0,255,136,0.4); }
-  .btn-retry {
-    padding:12px 28px; background:transparent; border:1px solid var(--accent);
-    border-radius:8px; color:var(--accent); font-family:'Orbitron',monospace;
-    font-size:0.8rem; letter-spacing:1px; cursor:pointer; transition:all 0.3s;
-  }
-  .btn-retry:hover { background:var(--accent); color:#000; }
+    /* Countdown */
+    .countdown-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      animation: fadeIn 1.4s 0.7s ease both;
+    }
 
-  /* GAME SUB SELECT */
-  #gameSelectScreen { flex-direction:column; align-items:center; justify-content:center; padding:32px; }
-  .game-select-title { font-family:'Orbitron',monospace; font-size:1.8rem; font-weight:900; color:var(--accent); margin-bottom:8px; text-align:center; }
-  .game-select-sub { color:var(--muted); text-align:center; margin-bottom:40px; }
-  .game-options { display:flex; gap:20px; flex-wrap:wrap; justify-content:center; }
-  .game-opt-card {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:16px; padding:32px 28px; text-align:center;
-    cursor:pointer; transition:all 0.35s; min-width:160px;
-  }
-  .game-opt-card:hover { transform:translateY(-6px); border-color:var(--accent2); box-shadow:0 0 20px rgba(255,107,0,0.3); }
-  .game-opt-icon { font-size:3.5rem; margin-bottom:12px; }
-  .game-opt-name { font-family:'Orbitron',monospace; font-size:0.9rem; color:var(--accent2); font-weight:700; }
-  .btn-back {
-    margin-top:24px; padding:10px 24px; background:transparent;
-    border:1px solid var(--muted); border-radius:8px; color:var(--muted);
-    cursor:pointer; transition:all 0.3s; font-family:'Rajdhani',sans-serif; letter-spacing:1px;
-  }
-  .btn-back:hover { border-color:var(--accent); color:var(--accent); }
+    .countdown {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 3rem;
+      animation: fadeIn 1.4s 0.9s ease both;
+    }
 
-  /* ADMIN PANEL */
-  #adminScreen { flex-direction:column; }
-  .admin-content { padding:40px 32px; max-width:1000px; margin:0 auto; width:100%; }
-  .admin-title { font-family:'Orbitron',monospace; font-size:1.6rem; color:var(--accent2); margin-bottom:32px; }
-  .admin-table { width:100%; border-collapse:collapse; background:var(--card); border-radius:12px; overflow:hidden; }
-  .admin-table th {
-    background:rgba(255,107,0,0.1); padding:14px 20px; text-align:left;
-    font-family:'Orbitron',monospace; font-size:0.75rem; color:var(--accent2); letter-spacing:2px;
-  }
-  .admin-table td { padding:14px 20px; border-bottom:1px solid rgba(255,255,255,0.04); font-size:0.9rem; }
-  .admin-table tr:last-child td { border-bottom:none; }
-  .admin-table tr:hover td { background:rgba(255,107,0,0.03); }
-  .btn-approve {
-    padding:6px 14px; background:rgba(0,255,136,0.1); border:1px solid var(--green);
-    border-radius:6px; color:var(--green); cursor:pointer; font-size:0.78rem; font-weight:600; transition:all 0.2s;
-  }
-  .btn-approve:hover { background:var(--green); color:#000; }
-  .btn-reject {
-    padding:6px 14px; background:rgba(255,34,68,0.1); border:1px solid var(--red);
-    border-radius:6px; color:var(--red); cursor:pointer; font-size:0.78rem; font-weight:600; transition:all 0.2s; margin-left:6px;
-  }
-  .btn-reject:hover { background:var(--red); color:#fff; }
+    .unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+    }
 
-  /* NOTIFICATION */
-  .notif {
-    position:fixed; top:20px; right:20px; z-index:9998;
-    background:var(--card); border:1px solid var(--border);
-    border-radius:10px; padding:14px 20px; max-width:320px;
-    animation:slideIn 0.3s ease; box-shadow:var(--glow);
-    font-size:0.88rem;
-  }
-  .notif.success { border-color:var(--green); }
-  .notif.error { border-color:var(--red); }
-  @keyframes slideIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+    .unit-val {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 6vw, 3rem);
+      color: var(--cream);
+      background: var(--dim);
+      padding: 0.2em 0.4em;
+      border: 1px solid #333;
+      min-width: 2.5em;
+      display: block;
+      text-align: center;
+      position: relative;
+      transition: color 0.3s;
+    }
+    .unit-val::before {
+      content: '';
+      position: absolute;
+      left: 0; right: 0;
+      top: 50%;
+      height: 1px;
+      background: rgba(0,0,0,0.5);
+    }
 
-  /* LOADING */
-  .loading-overlay {
-    display:none; position:fixed; inset:0; z-index:9997;
-    background:rgba(5,10,15,0.9); align-items:center; justify-content:center;
-  }
-  .loading-overlay.show { display:flex; }
-  .spinner {
-    width:48px; height:48px; border:3px solid var(--border);
-    border-top-color:var(--accent); border-radius:50%;
-    animation:spin 0.8s linear infinite;
-  }
-  @keyframes spin { to{transform:rotate(360deg)} }
+    .unit-name {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
 
-  /* SCORE SUBMISSION INFO */
-  .submit-info {
-    background:rgba(0,255,136,0.05); border:1px solid rgba(0,255,136,0.2);
-    border-radius:10px; padding:14px 18px; margin-top:16px;
-    font-size:0.85rem; color:var(--green); text-align:center;
-  }
+    /* progress bar */
+    .bar-wrap {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto 2rem;
+      animation: fadeIn 1.4s 1.1s ease both;
+    }
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.65rem;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .bar-bg {
+      height: 6px;
+      background: var(--dim);
+      border-radius: 0;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--red), var(--orange));
+      width: 100%;
+      transform-origin: right;
+      transition: transform 1s linear;
+    }
 
-  /* LEADERBOARD TABS */
-  .lb-tabs {
-    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;
-  }
-  .lb-tab {
-    padding:8px 14px; border-radius:20px; border:1px solid var(--border);
-    background:transparent; color:var(--muted); cursor:pointer;
-    font-family:'Rajdhani',sans-serif; font-size:0.82rem; letter-spacing:1px;
-    transition:all 0.25s;
-  }
-  .lb-tab.active, .lb-tab:hover { border-color:var(--accent); color:var(--accent); background:rgba(0,245,255,0.08); }
+    .footer-note {
+      font-size: 0.7rem;
+      color: #333;
+      letter-spacing: 0.1em;
+      animation: fadeIn 1.4s 1.3s ease both;
+    }
 
-  /* CHANGE PASSWORD MODAL */
-  .modal-overlay {
-    display:none; position:fixed; inset:0; z-index:9990;
-    background:rgba(0,0,0,0.85); align-items:center; justify-content:center;
-  }
-  .modal-overlay.show { display:flex; }
-  .modal-box {
-    background:var(--card); border:1px solid var(--border);
-    border-radius:16px; padding:40px 32px; width:380px; max-width:95vw;
-    box-shadow:var(--glow); animation:slideUp 0.3s ease;
-  }
-  .modal-title {
-    font-family:'Orbitron',monospace; font-size:1.1rem; color:var(--accent);
-    margin-bottom:24px; letter-spacing:2px;
-  }
-  .modal-close {
-    float:right; background:none; border:none; color:var(--muted);
-    font-size:1.4rem; cursor:pointer; margin-top:-4px;
-  }
-  .modal-close:hover { color:var(--red); }
-
-  /* ===== PROFILE SCREEN ===== */
-  #profileScreen { flex-direction:column; align-items:center; justify-content:center; padding:32px; }
-  .profile-card {
-    background:var(--card); border:1px solid var(--border); border-radius:20px;
-    padding:40px 36px; width:100%; max-width:500px; box-shadow:var(--glow);
-    animation:slideUp 0.4s ease;
-  }
-  .profile-avatar-wrap {
-    position:relative; width:110px; height:110px; margin:0 auto 20px;
-    cursor:pointer;
-  }
-  .profile-avatar {
-    width:110px; height:110px; border-radius:50%;
-    object-fit:cover; border:3px solid var(--accent);
-    box-shadow:0 0 20px rgba(0,245,255,0.3);
-    background:#111;
-  }
-  .profile-avatar-edit {
-    position:absolute; bottom:4px; right:4px;
-    width:30px; height:30px; border-radius:50%;
-    background:var(--accent); border:none; cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    font-size:0.85rem; color:#000; font-weight:700;
-  }
-  .profile-username {
-    font-family:'Orbitron',monospace; font-size:1.4rem; color:var(--accent);
-    text-align:center; margin-bottom:4px;
-  }
-  .profile-role {
-    text-align:center; color:var(--muted); font-size:0.82rem;
-    letter-spacing:2px; text-transform:uppercase; margin-bottom:28px;
-  }
-  .profile-section { margin-bottom:20px; }
-  .profile-section label {
-    display:block; font-size:0.75rem; letter-spacing:2px;
-    color:var(--accent); text-transform:uppercase; margin-bottom:8px;
-  }
-  .profile-section input {
-    width:100%; padding:12px 14px;
-    background:rgba(0,0,0,0.4); border:1px solid var(--border);
-    border-radius:8px; color:var(--text);
-    font-family:'Share Tech Mono',monospace; font-size:1rem;
-    outline:none; transition:all 0.3s;
-  }
-  .profile-section input:focus { border-color:var(--accent); }
-  .profile-note {
-    font-size:0.78rem; color:var(--muted); margin-top:6px;
-  }
-
-  /* BAN / FREEZE BADGE */
-  .ban-badge {
-    display:inline-block; padding:3px 10px; border-radius:20px;
-    font-size:0.72rem; font-weight:700; margin-left:8px;
-  }
-  .ban-badge.banned { background:rgba(255,34,68,0.2); color:var(--red); border:1px solid var(--red); }
-  .ban-badge.frozen { background:rgba(0,200,255,0.15); color:#00cfff; border:1px solid #00cfff; }
-
-  /* BAN SCREEN */
-  #bannedScreen {
-    position:fixed; inset:0; z-index:99999;
-    background:#000; display:none;
-    flex-direction:column; align-items:center; justify-content:center;
-  }
-  #bannedScreen.show { display:flex; }
-  .ban-icon { font-size:6rem; margin-bottom:16px; animation:pulse 1s infinite alternate; }
-  .ban-title { font-family:'Orbitron',monospace; font-size:2rem; color:var(--red); letter-spacing:4px; margin-bottom:12px; text-shadow:0 0 30px var(--red); }
-  .ban-reason { color:#ff8888; font-size:1rem; margin-bottom:8px; text-align:center; max-width:400px; }
-  .ban-sub { color:var(--muted); font-size:0.82rem; text-align:center; }
-  .freeze-sub { color:#00cfff; font-size:0.9rem; margin-top:8px; text-align:center; }
-
-  /* ADMIN USER MANAGEMENT */
-  .admin-tabs {
-    display:flex; gap:12px; margin-bottom:24px;
-  }
-  .admin-tab {
-    padding:10px 20px; border-radius:8px; border:1px solid var(--border);
-    background:transparent; color:var(--muted); cursor:pointer;
-    font-family:'Rajdhani',sans-serif; font-size:0.9rem; letter-spacing:1px; transition:all 0.25s;
-  }
-  .admin-tab.active { border-color:var(--accent2); color:var(--accent2); background:rgba(255,107,0,0.08); }
-  .btn-ban { padding:5px 12px; background:rgba(255,34,68,0.1); border:1px solid var(--red); border-radius:6px; color:var(--red); cursor:pointer; font-size:0.75rem; font-weight:600; transition:all 0.2s; margin-left:4px; }
-  .btn-ban:hover { background:var(--red); color:#fff; }
-  .btn-freeze { padding:5px 12px; background:rgba(0,200,255,0.1); border:1px solid #00cfff; border-radius:6px; color:#00cfff; cursor:pointer; font-size:0.75rem; font-weight:600; transition:all 0.2s; margin-left:4px; }
-  .btn-freeze:hover { background:#00cfff; color:#000; }
-  .btn-unban { padding:5px 12px; background:rgba(0,255,136,0.1); border:1px solid var(--green); border-radius:6px; color:var(--green); cursor:pointer; font-size:0.75rem; font-weight:600; transition:all 0.2s; margin-left:4px; }
-  .btn-unban:hover { background:var(--green); color:#000; }
-
-  /* FREEZE MODAL */
-  #freezeModal .modal-box { width:420px; }
-
-  @media(max-width:600px) {
-    .topbar { padding:12px 16px; }
-    .dash-content { padding:24px 16px; }
-    .skill-grid { grid-template-columns:1fr 1fr; gap:14px; }
-    .skill-card { padding:20px 14px; }
-    .lb-tabs { gap:6px; }
-    .lb-tab { padding:6px 10px; font-size:0.75rem; }
-    .profile-card { padding:28px 20px; }
-    .topbar-user { gap:6px; }
-    .btn-logout { padding:6px 10px; font-size:0.72rem; }
-  }
-</style>
+    /* blinking cursor */
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--orange);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: blink 1s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  </style>
 </head>
 <body>
+  <div class="container">
+    <div class="stamp">TUTUP</div>
 
-<!-- Particles -->
-<div id="particles"></div>
-<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+    <p class="subtitle">— Status Website —</p>
 
-<!-- ====== LOGIN ====== -->
-<div class="screen active" id="loginScreen">
-  <div class="login-container">
-    <div class="login-logo">
-      <h1>TESSKIL</h1>
-      <p>⚡ Buktikan Kemampuanmu ⚡</p>
+    <p class="reason">
+      Website ini telah <span>resmi ditutup</span><br/>
+      dikarenakan admin sudah <span>terlalu capek</span> 😮‍💨
+    </p>
+
+    <p class="countdown-label">⏳ Waktu sejak website masih aktif</p>
+
+    <div class="countdown">
+      <div class="unit">
+        <span class="unit-val" id="y">10</span>
+        <span class="unit-name">Tahun</span>
+      </div>
+      <div class="unit">
+        <span class="unit-val" id="d">000</span>
+        <span class="unit-name">Hari</span>
+      </div>
+      <div class="unit">
+        <span class="unit-val" id="h">00</span>
+        <span class="unit-name">Jam</span>
+      </div>
+      <div class="unit">
+        <span class="unit-val" id="m">00</span>
+        <span class="unit-name">Menit</span>
+      </div>
+      <div class="unit">
+        <span class="unit-val" id="s">00</span>
+        <span class="unit-name">Detik</span>
+      </div>
     </div>
 
-    <!-- LOGIN FORM -->
-    <div id="loginBox">
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="loginUser" placeholder="masukkan username...">
+    <div class="bar-wrap">
+      <div class="bar-label">
+        <span>Semangat admin</span>
+        <span id="pct">0%</span>
       </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="loginPass" placeholder="••••••••">
+      <div class="bar-bg">
+        <div class="bar-fill" id="bar"></div>
       </div>
-      <button class="btn-primary" onclick="doLogin()">🚀 MASUK</button>
-      <button class="btn-secondary" onclick="showRegister()">📝 Buat Akun Baru</button>
-      <div class="msg" id="loginMsg"></div>
     </div>
 
-    <!-- REGISTER FORM -->
-    <div id="registerBox">
-      <div class="form-group">
-        <label>Username</label>
-        <input type="text" id="regUser" placeholder="pilih username unik...">
-      </div>
-      <div class="form-group">
-        <label>Password</label>
-        <input type="password" id="regPass" placeholder="min 6 karakter...">
-      </div>
-      <div class="form-group">
-        <label>Konfirmasi Password</label>
-        <input type="password" id="regPass2" placeholder="ulangi password...">
-      </div>
-      <button class="btn-primary" onclick="doRegister()">✅ DAFTAR</button>
-      <button class="btn-secondary" onclick="showLogin()">← Sudah punya akun</button>
-      <div class="msg" id="regMsg"></div>
-    </div>
+    <p class="footer-note">© Admin yang sudah menyerah<span class="cursor"></span></p>
   </div>
-</div>
 
-<!-- ====== DASHBOARD ====== -->
-<div class="screen" id="dashScreen">
-  <div class="topbar">
-    <div class="topbar-logo">TESSKIL</div>
-    <div class="topbar-user">
-      <div class="user-badge" id="userBadge">👤 User</div>
-      <div id="adminBtn" style="display:none">
-        <button class="btn-logout" style="border-color:var(--accent2);color:var(--accent2);" onclick="showAdmin()">⚙️ ADMIN</button>
-      </div>
-      <button class="btn-logout" style="border-color:var(--green);color:var(--green);" onclick="showProfile()">👤 PROFIL</button>
-      <button class="btn-logout" style="border-color:var(--accent);color:var(--accent);" onclick="document.getElementById('changePwModal').classList.add('show');document.getElementById('cpOld').value='';document.getElementById('cpNew').value='';document.getElementById('cpNew2').value='';document.getElementById('cpMsg').textContent='';">🔐 SANDI</button>
-      <button class="btn-logout" onclick="doLogout()">KELUAR</button>
-    </div>
-  </div>
-  <div class="dash-content">
-    <div class="dash-hero">
-      <h2 id="dashGreet">Halo, Warrior!</h2>
-      <p>Pilih kategori dan buktikan kemampuanmu 💪</p>
-    </div>
+  <script>
+    // Start from 10 years in seconds and count DOWN
+    const TEN_YEARS = 10 * 365.25 * 24 * 3600;
+    let remaining = TEN_YEARS;
 
-    <div class="skill-grid">
-      <div class="skill-card" onclick="startQuiz('coding')">
-        <div class="skill-icon">💻</div>
-        <div class="skill-name">CODING</div>
-        <div class="skill-desc">30 soal seputar dunia programming</div>
-      </div>
-      <div class="skill-card" onclick="showGameSelect()">
-        <div class="skill-icon">🎮</div>
-        <div class="skill-name">GAME</div>
-        <div class="skill-desc">Uji pengetahuan game favoritmu</div>
-      </div>
-      <div class="skill-card" onclick="startQuiz('termux')">
-        <div class="skill-icon">📱</div>
-        <div class="skill-name">TERMUX</div>
-        <div class="skill-desc">Kuasai terminal android</div>
-      </div>
-      <div class="skill-card" onclick="startQuiz('mtk')">
-        <div class="skill-icon">🔢</div>
-        <div class="skill-name">MTK</div>
-        <div class="skill-desc">Matematika bukan halangan</div>
-      </div>
-    </div>
-
-    <div class="section-title">🏆 LEADERBOARD</div>
-    <div class="lb-tabs" id="lbTabs">
-      <button class="lb-tab active" onclick="switchLbTab('coding',this)">💻 Coding</button>
-      <button class="lb-tab" onclick="switchLbTab('termux',this)">📱 Termux</button>
-      <button class="lb-tab" onclick="switchLbTab('mtk',this)">🔢 MTK</button>
-      <button class="lb-tab" onclick="switchLbTab('ml',this)">⚔️ ML</button>
-      <button class="lb-tab" onclick="switchLbTab('ff',this)">🔥 FF</button>
-      <button class="lb-tab" onclick="switchLbTab('pubg',this)">🪖 PUBG</button>
-      <button class="lb-tab" onclick="switchLbTab('coc',this)">🏰 COC</button>
-      <button class="lb-tab" onclick="switchLbTab('roblox',this)">🧱 Roblox</button>
-    </div>
-    <div class="leaderboard" id="leaderboard">
-      <div class="lb-empty">Loading leaderboard...</div>
-    </div>
-  </div>
-</div>
-
-<!-- ====== GAME SELECT ====== -->
-<div class="screen" id="gameSelectScreen">
-  <div style="width:100%;max-width:700px;margin:0 auto;padding:32px;">
-    <div class="game-select-title">🎮 PILIH GAME</div>
-    <div class="game-select-sub">Pilih game yang ingin diuji pengetahuannya</div>
-    <div class="game-options">
-      <div class="game-opt-card" onclick="startQuiz('ml')">
-        <div class="game-opt-icon">⚔️</div>
-        <div class="game-opt-name">MOBILE LEGENDS</div>
-      </div>
-      <div class="game-opt-card" onclick="startQuiz('ff')">
-        <div class="game-opt-icon">🔥</div>
-        <div class="game-opt-name">FREE FIRE</div>
-      </div>
-      <div class="game-opt-card" onclick="startQuiz('pubg')">
-        <div class="game-opt-icon">🪖</div>
-        <div class="game-opt-name">PUBG</div>
-      </div>
-      <div class="game-opt-card" onclick="startQuiz('coc')">
-        <div class="game-opt-icon">🏰</div>
-        <div class="game-opt-name">CLASH OF CLANS</div>
-      </div>
-      <div class="game-opt-card" onclick="startQuiz('roblox')">
-        <div class="game-opt-icon">🧱</div>
-        <div class="game-opt-name">ROBLOX</div>
-      </div>
-    </div>
-    <div style="text-align:center;">
-      <button class="btn-back" onclick="showDash()">← Kembali</button>
-    </div>
-  </div>
-</div>
-
-<!-- ====== QUIZ ====== -->
-<div class="screen" id="quizScreen">
-  <div class="quiz-wrapper">
-    <div class="quiz-header">
-      <div class="quiz-title" id="quizTitle">CODING TEST</div>
-      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizFill" style="width:0%"></div></div>
-      <div class="quiz-meta">
-        <span id="quizCounter">Soal 1 / 30</span>
-        <span id="quizScore">Benar: 0</span>
-      </div>
-    </div>
-    <div class="quiz-card">
-      <div class="quiz-q" id="quizQ">Loading soal...</div>
-      <div class="quiz-options" id="quizOpts"></div>
-    </div>
-    <div class="quiz-nav">
-      <button class="btn-give-up" onclick="confirmGiveUp()">🏳️ Menyerah</button>
-      <button class="btn-quiz btn-next" id="nextBtn" onclick="nextQuestion()" disabled>LANJUT →</button>
-    </div>
-  </div>
-</div>
-
-<!-- ====== RESULT ====== -->
-<div class="screen" id="resultScreen">
-  <div class="result-card">
-    <div class="result-emoji" id="resultEmoji">🎯</div>
-    <div class="result-title" id="resultTitle">HASIL TES</div>
-    <div class="result-score" id="resultScore">0%</div>
-    <div class="result-detail" id="resultDetail">0 dari 30 benar</div>
-    <div id="resultStatus"></div>
-    <div class="result-actions">
-      <button class="btn-submit-score" id="submitScoreBtn" onclick="submitScore()">📤 Ajukan Nilai</button>
-      <button class="btn-retry" onclick="showDash()">🏠 Dashboard</button>
-    </div>
-    <div class="submit-info" id="submitInfo" style="display:none"></div>
-  </div>
-</div>
-
-<!-- ====== ADMIN PANEL ====== -->
-<div class="screen" id="adminScreen">
-  <div class="topbar">
-    <div class="topbar-logo" style="color:var(--accent2);">ADMIN PANEL</div>
-    <div class="topbar-user">
-      <button class="btn-logout" onclick="showDash()">← Dashboard</button>
-      <button class="btn-logout" onclick="doLogout()">KELUAR</button>
-    </div>
-  </div>
-  <div class="admin-content">
-    <div class="admin-title">⚙️ ADMIN PANEL</div>
-    <div class="admin-tabs">
-      <button class="admin-tab active" id="tabScores" onclick="switchAdminTab('scores')">📊 Nilai</button>
-      <button class="admin-tab" id="tabUsers" onclick="switchAdminTab('users')">👥 Manajemen User</button>
-    </div>
-    <div style="margin-bottom:24px;">
-      <button class="btn-approve" style="padding:10px 22px;font-size:0.85rem;" onclick="document.getElementById('adminCreateModal').classList.add('show');document.getElementById('acUser').value='';document.getElementById('acPass').value='';document.getElementById('acMsg').textContent='';">➕ Buat Akun Admin/User</button>
-    </div>
-    <div id="adminTable">
-      <div class="lb-empty">Loading data...</div>
-    </div>
-  </div>
-</div>
-
-<!-- GIVE UP OVERLAY -->
-<div id="giveUpOverlay">
-  <div class="giveup-anim">🏳️</div>
-  <div class="giveup-yah">YAH!!</div>
-  <div class="giveup-weak">LEMAH BANGET SIH</div>
-  <button class="btn-back-dash" onclick="backFromGiveUp()">↩ KEMBALI</button>
-</div>
-
-<!-- CHANGE PASSWORD MODAL -->
-<div class="modal-overlay" id="changePwModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="document.getElementById('changePwModal').classList.remove('show')">✕</button>
-    <div class="modal-title">🔐 GANTI SANDI</div>
-    <div class="form-group">
-      <label>Password Lama</label>
-      <input type="password" id="cpOld" placeholder="password lama...">
-    </div>
-    <div class="form-group">
-      <label>Password Baru</label>
-      <input type="password" id="cpNew" placeholder="min 6 karakter...">
-    </div>
-    <div class="form-group">
-      <label>Konfirmasi Baru</label>
-      <input type="password" id="cpNew2" placeholder="ulangi password baru...">
-    </div>
-    <button class="btn-primary" onclick="doChangePassword()">✅ SIMPAN</button>
-    <div class="msg" id="cpMsg"></div>
-  </div>
-</div>
-
-<!-- ADMIN CREATE ACCOUNT MODAL -->
-<div class="modal-overlay" id="adminCreateModal">
-  <div class="modal-box">
-    <button class="modal-close" onclick="document.getElementById('adminCreateModal').classList.remove('show')">✕</button>
-    <div class="modal-title">➕ BUAT AKUN</div>
-    <div class="form-group">
-      <label>Username</label>
-      <input type="text" id="acUser" placeholder="username...">
-    </div>
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" id="acPass" placeholder="min 6 karakter...">
-    </div>
-    <div class="form-group">
-      <label>Role</label>
-      <select id="acRole" style="width:100%;padding:12px 14px;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:1rem;outline:none;">
-        <option value="user">User</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <button class="btn-primary" onclick="doAdminCreateAccount()">✅ BUAT AKUN</button>
-    <div class="msg" id="acMsg"></div>
-  </div>
-</div>
-
-<!-- ====== PROFILE SCREEN ====== -->
-<div class="screen" id="profileScreen">
-  <div class="topbar">
-    <div class="topbar-logo">👤 MY PROFILE</div>
-    <div class="topbar-user">
-      <button class="btn-logout" onclick="showDash()">← Dashboard</button>
-    </div>
-  </div>
-  <div style="display:flex;align-items:center;justify-content:center;padding:40px 20px;flex:1;">
-    <div class="profile-card">
-      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatarChange(event)">
-      <div class="profile-avatar-wrap" onclick="document.getElementById('avatarInput').click()">
-        <img class="profile-avatar" id="profileAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23111'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2300f5ff' opacity='0.5'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='18' fill='%2300f5ff' opacity='0.3'/%3E%3C/svg%3E" alt="avatar">
-        <button class="profile-avatar-edit" onclick="event.stopPropagation();document.getElementById('avatarInput').click()">✏️</button>
-      </div>
-      <div class="profile-username" id="profileUsernameDisplay">-</div>
-      <div class="profile-role" id="profileRoleDisplay">user</div>
-
-      <div class="profile-section">
-        <label>🏷️ Display Name (di Leaderboard)</label>
-        <input type="text" id="profileDisplayName" placeholder="nama yang muncul di leaderboard..." maxlength="20">
-        <div class="profile-note">Kosongkan untuk pakai username asli</div>
-      </div>
-
-      <button class="btn-primary" onclick="saveProfile()" style="margin-top:8px;">💾 SIMPAN PROFIL</button>
-      <div class="msg" id="profileMsg"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ====== BANNED SCREEN ====== -->
-<div id="bannedScreen">
-  <div class="ban-icon">🚫</div>
-  <div class="ban-title" id="banTitle">AKUN DIBLOKIR</div>
-  <div class="ban-reason" id="banReason">Akun kamu telah dibanned secara permanen.</div>
-  <div class="ban-sub">Hubungi admin jika ada pertanyaan.</div>
-  <div class="freeze-sub" id="freezeSub" style="display:none"></div>
-</div>
-
-<!-- FREEZE MODAL -->
-<div class="modal-overlay" id="freezeModal">
-  <div class="modal-box" id="freezeModal" style="width:420px;">
-    <button class="modal-close" onclick="document.getElementById('freezeModal').classList.remove('show')">✕</button>
-    <div class="modal-title">❄️ BEKUKAN AKUN</div>
-    <div style="margin-bottom:12px;color:var(--muted);font-size:0.9rem;">Username: <strong id="freezeTargetUser" style="color:var(--text)"></strong></div>
-    <div class="form-group">
-      <label>Durasi Pembekuan</label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
-        <button class="lb-tab" onclick="setFreezeDur(3600,'1 Jam')">1 Jam</button>
-        <button class="lb-tab" onclick="setFreezeDur(86400,'1 Hari')">1 Hari</button>
-        <button class="lb-tab" onclick="setFreezeDur(259200,'3 Hari')">3 Hari</button>
-        <button class="lb-tab" onclick="setFreezeDur(604800,'1 Minggu')">1 Minggu</button>
-      </div>
-      <label>Atau Custom (detik)</label>
-      <input type="number" id="freezeDurInput" placeholder="contoh: 3600 = 1 jam..." min="1">
-    </div>
-    <button class="btn-primary" style="background:linear-gradient(135deg,#00cfff,#0077aa);" onclick="doFreezeAccount()">❄️ BEKUKAN</button>
-    <div class="msg" id="freezeMsg"></div>
-  </div>
-</div>
-
-<!-- Firebase & App Script -->
-<!-- Firebase compat (global variables, no module needed) -->
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script>
-firebase.initializeApp({
-  apiKey: "AIzaSyAECH7bUv8Ulq_oC9At_9cAMdRXu4woLok",
-  authDomain: "tesskil.firebaseapp.com",
-  projectId: "tesskil",
-  storageBucket: "tesskil.firebasestorage.app",
-  messagingSenderId: "322480626151",
-  appId: "1:322480626151:web:a07cd5a1ac80180c110542",
-  databaseURL: "https://tesskil-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
-const auth = firebase.auth();
-const db = firebase.database();
-const QUESTIONS = {
-  coding: [
-    {q:"Apa kepanjangan dari HTML?",opts:["Hyper Text Markup Language","High Text Markup Language","Hyper Tool Markup Language","Hyper Text Modern Language"],ans:0},
-    {q:"Bahasa yang digunakan untuk styling tampilan web adalah?",opts:["JavaScript","Python","CSS","SQL"],ans:2},
-    {q:"Tag HTML yang digunakan untuk membuat hyperlink adalah?",opts:["<link>","<a>","<href>","<url>"],ans:1},
-    {q:"Fungsi console.log() di JavaScript untuk?",opts:["Membuat tombol","Menampilkan output di konsol","Menyimpan data","Membuat animasi"],ans:1},
-    {q:"Tipe data yang menyimpan nilai true/false disebut?",opts:["Integer","String","Boolean","Float"],ans:2},
-    {q:"Dalam CSS, untuk membuat teks menjadi tebal menggunakan?",opts:["font-weight: bold","text-style: bold","font-style: bold","text-weight: bold"],ans:0},
-    {q:"Perintah Git untuk menyimpan perubahan ke repository?",opts:["git save","git push","git commit","git add"],ans:2},
-    {q:"Apa yang dimaksud dengan API?",opts:["Application Program Interface","Advanced Programming Interface","Application Protocol Interface","Automated Process Integration"],ans:0},
-    {q:"Framework CSS yang populer adalah?",opts:["React","Node.js","Tailwind CSS","MongoDB"],ans:2},
-    {q:"Perintah untuk menginstall package di Node.js?",opts:["node install","npm install","pkg install","yarn get"],ans:1},
-    {q:"Apa itu variabel dalam pemrograman?",opts:["Fungsi yang bisa dipanggil","Tempat menyimpan data sementara","Jenis loop","Struktur kondisi"],ans:1},
-    {q:"Loop yang digunakan saat jumlah iterasi sudah diketahui?",opts:["while","do-while","for","foreach"],ans:2},
-    {q:"Dalam JavaScript, cara mendeklarasikan variabel konstanta?",opts:["var","let","const","def"],ans:2},
-    {q:"Fungsi trim() pada string digunakan untuk?",opts:["Memotong string","Menghapus spasi di awal/akhir","Mengubah ke huruf besar","Membalik string"],ans:1},
-    {q:"Apa kepanjangan dari SQL?",opts:["Simple Query Language","Structured Query Language","Standard Query Language","System Query Language"],ans:1},
-    {q:"Tag untuk membuat tabel di HTML adalah?",opts:["<table>","<grid>","<list>","<div>"],ans:0},
-    {q:"Method HTTP yang digunakan untuk mengirim data form?",opts:["GET","PUT","POST","DELETE"],ans:2},
-    {q:"Dalam CSS, property untuk mengatur jarak dalam elemen?",opts:["margin","border","padding","spacing"],ans:2},
-    {q:"Array di JavaScript dimulai dari index berapa?",opts:["1","0","-1","Tergantung"],ans:1},
-    {q:"Apa itu responsive web design?",opts:["Website yang cepat","Website yang menyesuaikan layar","Website dengan animasi","Website dengan database"],ans:1},
-    {q:"Bahasa pemrograman yang sering digunakan di backend?",opts:["HTML","CSS","Python","Photoshop"],ans:2},
-    {q:"Operator === di JavaScript memeriksa?",opts:["Nilai saja","Nilai dan tipe data","Tipe data saja","Referensi objek"],ans:1},
-    {q:"Apa itu DOM?",opts:["Document Object Model","Data Object Management","Dynamic Object Module","Document Output Method"],ans:0},
-    {q:"Framework JavaScript untuk membuat UI komponen?",opts:["Django","Laravel","React","Express"],ans:2},
-    {q:"Apa fungsi tag <meta> di HTML?",opts:["Menampilkan gambar","Menyimpan metadata halaman","Membuat link","Membuat form"],ans:1},
-    {q:"JSON singkatan dari?",opts:["JavaScript Object Notation","Java Standard Object Node","JavaScript Online Node","Java Syntax Object Node"],ans:0},
-    {q:"Perintah untuk melihat versi Node.js yang terinstall?",opts:["node -version","node --v","node -v","nodejs version"],ans:2},
-    {q:"Apa itu callback function?",opts:["Fungsi yang dipanggil pertama","Fungsi yang diteruskan sebagai argumen ke fungsi lain","Fungsi yang mengembalikan nilai","Fungsi rekursif"],ans:1},
-    {q:"Property CSS untuk mengatur warna latar belakang?",opts:["color","background","background-color","bg-color"],ans:2},
-    {q:"Apa yang membedakan class dan id di CSS?",opts:["Tidak ada bedanya","Class bisa dipakai banyak elemen, id harus unik","Id bisa dipakai banyak elemen, class harus unik","Class untuk teks, id untuk div"],ans:1},
-    {q:"Apa itu inheritance dalam OOP?",opts:["Menyembunyikan data","Pewarisan sifat dari class induk ke anak","Pengulangan kode","Pembuatan objek"],ans:1},
-    {q:"Apa itu encapsulation?",opts:["Mewarisi class lain","Menyembunyikan detail implementasi","Membuat banyak fungsi","Proses kompilasi"],ans:1},
-    {q:"Perbedaan == dan === di JavaScript?",opts:["Tidak ada bedanya","== hanya nilai, === nilai dan tipe","=== lebih lambat","== lebih ketat"],ans:1},
-    {q:"Apa itu recursion?",opts:["Loop biasa","Fungsi yang memanggil dirinya sendiri","Tipe data khusus","Metode sorting"],ans:1},
-    {q:"Apa kepanjangan dari OOP?",opts:["Object Oriented Programming","Object Online Programming","Output Oriented Process","Object Overload Protocol"],ans:0},
-    {q:"Apa itu null vs undefined di JavaScript?",opts:["Sama saja","null = sengaja kosong, undefined = belum diisi","undefined = error","null = angka 0"],ans:1},
-    {q:"Apa fungsi git branch?",opts:["Menghapus commit","Membuat jalur pengembangan terpisah","Melihat log","Merge kode"],ans:1},
-    {q:"Apa itu HTTP status 404?",opts:["Server error","Not Found","Unauthorized","Redirect"],ans:1},
-    {q:"Apa itu async/await di JavaScript?",opts:["Cara membuat loop","Cara menangani operasi asynchronous","Cara membuat class","Tipe data baru"],ans:1},
-    {q:"Struktur data yang menggunakan prinsip LIFO?",opts:["Queue","Array","Stack","Tree"],ans:2},
-    {q:"Apa itu Git merge?",opts:["Menghapus branch","Menggabungkan dua branch","Membuat repo baru","Melihat history"],ans:1},
-    {q:"Apa itu polymorphism?",opts:["Banyak warisan","Satu interface bisa banyak bentuk","Menyembunyikan data","Tipe data khusus"],ans:1},
-    {q:"Apa itu Big O Notation?",opts:["Cara menulis kode","Cara mengukur efisiensi algoritma","Tipe loop","Format file"],ans:1},
-    {q:"Apa itu REST API?",opts:["Bahasa pemrograman","Arsitektur komunikasi client-server berbasis HTTP","Tipe database","Framework CSS"],ans:1},
-    {q:"Perbedaan SQL dan NoSQL?",opts:["Tidak ada bedanya","SQL tabel relasional, NoSQL dokumen/fleksibel","NoSQL lebih lama","SQL lebih cepat selalu"],ans:1},
-    {q:"Apa itu JWT?",opts:["JavaScript Web Tool","JSON Web Token untuk autentikasi","Java Web Template","JavaScript Working Thread"],ans:1},
-    {q:"Apa fungsi tag <script> di HTML?",opts:["Menampilkan gambar","Menyisipkan kode JavaScript","Membuat tabel","Styling elemen"],ans:1},
-    {q:"Apa itu CDN?",opts:["Code Delivery Node","Content Delivery Network","Central Data Node","Code Deploy Network"],ans:1},
-    {q:"Apa itu middleware?",opts:["Tipe database","Perangkat lunak penghubung antar sistem","Jenis loop","Tipe array"],ans:1}
-  ],
-  termux: [
-    {q:"Perintah untuk update package di Termux?",opts:["apt update","pkg upgrade","pkg update && pkg upgrade","termux update"],ans:2},
-    {q:"Cara install Python di Termux?",opts:["apt install python","pkg install python","install python","termux install python"],ans:1},
-    {q:"Perintah untuk melihat daftar file di direktori?",opts:["list","dir","ls","show"],ans:2},
-    {q:"Cara masuk ke folder bernama 'project'?",opts:["go project","open project","cd project","enter project"],ans:2},
-    {q:"Perintah untuk membuat file baru kosong?",opts:["create file.txt","new file.txt","touch file.txt","make file.txt"],ans:2},
-    {q:"Cara melihat isi file teks di terminal?",opts:["read file.txt","cat file.txt","open file.txt","show file.txt"],ans:1},
-    {q:"Perintah untuk menghapus file?",opts:["delete file","remove file","rm file","erase file"],ans:2},
-    {q:"Cara membuat direktori baru?",opts:["mk dir","mkdir namafolder","create folder","newdir"],ans:1},
-    {q:"Perintah untuk menginstall Nmap di Termux?",opts:["install nmap","pkg install nmap","apt get nmap","termux nmap"],ans:1},
-    {q:"Apa itu Termux?",opts:["Game Android","Emulator terminal Linux di Android","Browser khusus hacker","Aplikasi hacking"],ans:1},
-    {q:"Cara menjalankan script Python bernama 'test.py'?",opts:["run test.py","execute test.py","python test.py","start test.py"],ans:2},
-    {q:"Perintah untuk melihat lokasi direktori saat ini?",opts:["where","pwd","locate","currentdir"],ans:1},
-    {q:"Cara copy file di terminal?",opts:["copy file dest","cp file dest","move file dest","duplicate file dest"],ans:1},
-    {q:"Perintah untuk install git di Termux?",opts:["apt install git","install git","pkg install git","get git"],ans:2},
-    {q:"Cara keluar dari direktori ke atas?",opts:["cd ..","back","up","cd /"],ans:0},
-    {q:"Cara menampilkan semua file termasuk tersembunyi?",opts:["ls -a","ls -hidden","ls all","show hidden"],ans:0},
-    {q:"Perintah untuk clear layar terminal?",opts:["cls","clear","reset screen","wipe"],ans:1},
-    {q:"Cara install Node.js di Termux?",opts:["apt install nodejs","pkg install nodejs","install node","termux node"],ans:1},
-    {q:"Perintah untuk melihat IP address di Termux?",opts:["ip address","ifconfig","ipconfig","showip"],ans:1},
-    {q:"Cara pindahkan file ke folder lain?",opts:["cp file folder/","mv file folder/","move file folder/","put file folder/"],ans:1},
-    {q:"Perintah untuk mengubah permission file menjadi executable?",opts:["chmod +x file","perm +x file","exec file","allow file"],ans:0},
-    {q:"Cara mendownload file dengan wget?",opts:["wget download url","wget url","download wget url","fetch url"],ans:1},
-    {q:"Perintah untuk melihat proses yang berjalan?",opts:["process","ps","running","tasks"],ans:1},
-    {q:"Cara install Nano editor di Termux?",opts:["install nano","pkg install nano","apt nano","get nano"],ans:1},
-    {q:"Cara membuka file dengan Nano?",opts:["open nano file","nano file","edit nano file","start nano file"],ans:1},
-    {q:"Perintah untuk menghapus folder kosong?",opts:["rm folder","rmdir folder","del folder","remove folder"],ans:1},
-    {q:"Cara mencari file bernama 'test' di sistem?",opts:["search test","find . -name test","locate test","grep test"],ans:1},
-    {q:"Cara menyimpan dan keluar di editor Nano?",opts:["Ctrl+X lalu Y","Ctrl+S","Esc lalu :wq","Alt+X"],ans:0},
-    {q:"Perintah untuk melihat ukuran penggunaan disk?",opts:["diskspace","df -h","storage","du -sh"],ans:1},
-    {q:"Cara install Figlet di Termux?",opts:["pkg install figlet","apt get figlet","install figlet","termux figlet"],ans:0}
-  ],
-  mtk: [
-    {q:"Berapa hasil dari 7 × 8?",opts:["54","56","58","64"],ans:1},
-    {q:"Berapakah √144?",opts:["11","12","13","14"],ans:1},
-    {q:"Jika 3x = 24, maka x = ?",opts:["6","7","8","9"],ans:2},
-    {q:"Berapa 15% dari 200?",opts:["25","30","35","40"],ans:1},
-    {q:"Luas persegi dengan sisi 9 cm?",opts:["72 cm²","81 cm²","90 cm²","64 cm²"],ans:1},
-    {q:"Berapa hasil 2⁸?",opts:["128","256","512","64"],ans:1},
-    {q:"FPB dari 24 dan 36 adalah?",opts:["6","8","12","18"],ans:2},
-    {q:"Keliling lingkaran dengan r=7 (π=22/7)?",opts:["42","44","46","48"],ans:1},
-    {q:"Sudut lancip berada di antara?",opts:["0°-90°","90°-180°","0°-45°","0°-60°"],ans:0},
-    {q:"Jika x² = 49, x = ?",opts:["6","7","8","9"],ans:1},
-    {q:"Berapa hasil 1000 ÷ 25?",opts:["35","40","45","50"],ans:1},
-    {q:"Volume kubus dengan sisi 5 cm?",opts:["100 cm³","125 cm³","150 cm³","75 cm³"],ans:1},
-    {q:"Berapa 3/4 + 1/2?",opts:["1","1¼","5/4","4/6"],ans:2},
-    {q:"Nilai dari sin 90° adalah?",opts:["0","0.5","1","-1"],ans:2},
-    {q:"Jika harga awal 80.000 diskon 25%, harga akhir?",opts:["55.000","60.000","65.000","70.000"],ans:1},
-    {q:"Berapa KPK dari 4 dan 6?",opts:["12","18","24","8"],ans:0},
-    {q:"Luas segitiga dengan alas 10 dan tinggi 8?",opts:["40","80","20","60"],ans:0},
-    {q:"Berapa -5 × (-3)?",opts:["-15","15","-8","8"],ans:1},
-    {q:"Jika ada 5 buku seharga 12.500 total?",opts:["60.000","62.500","65.000","70.000"],ans:1},
-    {q:"Berapa digit terakhir 7¹⁰⁰?",opts:["1","7","9","3"],ans:0},
-    {q:"Perbandingan 3:4, jika bagian pertama 15 maka bagian kedua?",opts:["16","18","20","22"],ans:2},
-    {q:"Hasil dari (2+3)² ?",opts:["10","13","25","30"],ans:2},
-    {q:"Berapa 0.5 × 0.5?",opts:["0.1","0.25","0.5","1.0"],ans:1},
-    {q:"Besar sudut dalam segitiga sama sisi?",opts:["90°","60°","45°","120°"],ans:1},
-    {q:"Berapa persen 45 dari 180?",opts:["20%","25%","30%","35%"],ans:1},
-    {q:"Jika kecepatan 60 km/jam selama 2,5 jam, jarak?",opts:["120 km","140 km","150 km","160 km"],ans:2},
-    {q:"Berapa hasil 4! (4 faktorial)?",opts:["12","16","20","24"],ans:3},
-    {q:"Nilai cos 0° adalah?",opts:["0","0.5","1","-1"],ans:2},
-    {q:"Jika tabung r=7 t=10, volumenya (π=22/7)?",opts:["1450","1540","1600","1380"],ans:1},
-    {q:"Berapa rata-rata dari 4,7,8,9,12?",opts:["7","7.5","8","8.5"],ans:2}
-  ],
-  ml: [
-    {q:"Hero Mobile Legends pertama yang dirilis?",opts:["Miya","Layla","Tigreal","Balmond"],ans:1},
-    {q:"Apa nama ultimate skill Fanny?",opts:["Steel Cables","Air Superiority","Tornado","Wire Jump"],ans:0},
-    {q:"Role yang fokus pada damage tinggi dari jarak jauh?",opts:["Tank","Fighter","Marksman","Support"],ans:2},
-    {q:"Item yang memberikan lifesteal di MLBB?",opts:["Blade of Despair","Bloodlust Axe","Haas' Claws","Endless Battle"],ans:2},
-    {q:"Berapa lane yang ada di peta MLBB?",opts:["2","3","4","5"],ans:1},
-    {q:"Hero dengan mobilitas tertinggi di ML?",opts:["Gusion","Lancelot","Fanny","Hayabusa"],ans:2},
-    {q:"Apa kepanjangan MVP di ML?",opts:["Most Valuable Player","Most Victory Point","Most Valued Performance","Maximum Victory Player"],ans:0},
-    {q:"Monster Lord terkuat di jungling disebut?",opts:["Turtle","Crab","Lord","Dragon"],ans:2},
-    {q:"Hero support yang bisa memberikan perisai besar?",opts:["Estes","Angela","Rafaela","Floryn"],ans:1},
-    {q:"Item boot yang memberikan cooldown reduction?",opts:["Magic Shoes","Rapid Boots","Ice Hunter","Warrior Boots"],ans:0},
-    {q:"Hero mana yang terkenal dengan clone-nya?",opts:["Hayabusa","Wanwan","Hanabi","Lesley"],ans:0},
-    {q:"Rank tertinggi di Mobile Legends?",opts:["Mythic","Legend","Immortal","Mythical Glory"],ans:3},
-    {q:"Apa skill unik hero Khufra?",opts:["Bisa memantul seperti bola","Bisa terbang","Bisa invisible","Bisa duplicate"],ans:0},
-    {q:"Hero yang bisa berubah bentuk di MLBB?",opts:["Roger","Wukong","Aldous","Argus"],ans:0},
-    {q:"Turtle di ML memberikan buff apa?",opts:["Damage buff","Gold & EXP buff","Movement speed","Shield"],ans:1}
-  ],
-  ff: [
-    {q:"Berapa maksimal jumlah pemain dalam squad Free Fire?",opts:["2","3","4","5"],ans:2},
-    {q:"Apa nama safe zone di Free Fire?",opts:["Blue Zone","Safe Zone","White Circle","Play Zone"],ans:2},
-    {q:"Senjata pistol pertama yang sering dipakai pemula?",opts:["Desert Eagle","Glock","M1014","G18"],ans:1},
-    {q:"Apa nama event berhadiah diamond terbesar di FF?",opts:["Booyah","Grand Event","Top Up Bonus","Incubator"],ans:3},
-    {q:"Karakter FF yang populer dengan ability dodge?",opts:["DJ Alok","Kelly","Jota","Hayato"],ans:2},
-    {q:"Mode permainan 1vs1 di FF disebut?",opts:["Clash Squad","Battle Royale","Lone Wolf","Training Mode"],ans:2},
-    {q:"Apa arti BOOYAH di Free Fire?",opts:["Kalah","Menang","Draw","AFK"],ans:1},
-    {q:"Senjata sniper paling populer di FF?",opts:["SVD","M82B","AWM","Kar98"],ans:2},
-    {q:"Berapa jumlah pemain dalam mode battle royale FF?",opts:["48","50","52","54"],ans:1},
-    {q:"Ability karakter DJ Alok adalah?",opts:["Menambah kecepatan","Drop the Beat healing","Damage lebih tinggi","Invisible"],ans:1},
-    {q:"Peta klasik pertama di Free Fire bernama?",opts:["Kalahari","Bermuda","Purgatory","Alpine"],ans:1},
-    {q:"Senjata AR yang sering dipakai pro player?",opts:["AK","M4A1","SCAR","Groza"],ans:3},
-    {q:"Mode 4vs4 di FF bernama?",opts:["Squad","Clash Squad","Death Match","Team Battle"],ans:1},
-    {q:"Pet paling populer di Free Fire?",opts:["Falco","Ottero","Dr. Beanie","Panda"],ans:0},
-    {q:"Rank tertinggi di Free Fire?",opts:["Diamond","Heroic","Grandmaster","Master"],ans:1}
-  ],
-  roblox: [
-    {q:"Mata uang utama di Roblox bernama?",opts:["Coins","Robux","Tix","Gems"],ans:1},
-    {q:"Bahasa pemrograman yang digunakan di Roblox Studio?",opts:["Python","JavaScript","Lua","C++"],ans:2},
-    {q:"Apa kepanjangan dari NPC di Roblox?",opts:["Non-Player Character","New Player Content","Next Position Code","None Playing Code"],ans:0},
-    {q:"Game Roblox terpopuler sepanjang masa?",opts:["Adopt Me","Brookhaven","Jailbreak","Welcome to Bloxburg"],ans:0},
-    {q:"Tool di Roblox Studio untuk memindahkan objek?",opts:["Scale","Rotate","Move","Select"],ans:2},
-    {q:"Apa itu 'Script' di Roblox?",opts:["Karakter pemain","Kode untuk mengontrol game","Jenis item","Nama map"],ans:1},
-    {q:"Roblox pertama kali dirilis tahun?",opts:["2004","2006","2008","2010"],ans:1},
-    {q:"Mode permainan survival di Roblox yang terkenal?",opts:["Natural Disaster Survival","Simulator","Tower Defense","Tycoon"],ans:0},
-    {q:"Apa fungsi 'ServerScript' di Roblox?",opts:["Berjalan di client","Berjalan di server","Untuk UI","Untuk animasi"],ans:1},
-    {q:"Tempat kustomisasi karakter di Roblox disebut?",opts:["Wardrobe","Avatar Editor","Character Shop","Roblox Closet"],ans:1},
-    {q:"Game genre tycoon di Roblox artinya?",opts:["Permainan tembak","Permainan membangun & menghasilkan uang","Permainan balapan","Permainan survival"],ans:1},
-    {q:"Apa itu 'RemoteEvent' di Roblox?",opts:["Jenis karakter","Komunikasi antara server dan client","Jenis senjata","Sistem rank"],ans:1},
-    {q:"Ukuran default tinggi karakter Roblox (Studs)?",opts:["3","4","5","6"],ans:2},
-    {q:"Apa itu 'Leaderstats' di Roblox?",opts:["Papan nama pemain","Sistem menyimpan nilai/stats pemain","Daftar teman","Achievement"],ans:1},
-    {q:"Istilah untuk developer Roblox yang sukses?",opts:["Coder","Dev","Robux Maker","Creator"],ans:3},
-    {q:"Apa itu 'Workspace' di Roblox Studio?",opts:["Tempat menyimpan script","Tempat semua objek 3D game","Tempat konfigurasi","Tempat animasi"],ans:1},
-    {q:"Game simulasi hewan paling viral di Roblox?",opts:["Pet Simulator X","Animal Crossing","Wild Life","Zoo Tycoon"],ans:0},
-    {q:"Apa fungsi 'LocalScript' di Roblox?",opts:["Berjalan di server","Berjalan di client/pemain","Untuk semua pemain","Untuk admin saja"],ans:1},
-    {q:"Cara melihat ID item di Roblox?",opts:["Hover di item di catalog","Klik kanan di item","Buka settings","Tanya support"],ans:0},
-    {q:"Apa itu 'Datastore' di Roblox?",opts:["Tempat jual item","Sistem menyimpan data pemain permanen","Jenis map","Fitur chat"],ans:1},
-    {q:"Game horror populer di Roblox?",opts:["Doors","Granny","Piggy","SCP Roleplay"],ans:2},
-    {q:"Apa itu 'Obby' di Roblox?",opts:["Tipe karakter","Obstacle course / rintangan","Jenis currency","Mode multiplayer"],ans:1},
-    {q:"Platform Roblox tersedia di?",opts:["PC saja","Mobile saja","PC, Mobile, Console","PC dan Console saja"],ans:2},
-    {q:"Apa nama editor resmi untuk membuat game Roblox?",opts:["Unity","Roblox Maker","Roblox Studio","Blender"],ans:2},
-    {q:"Apa itu 'Part' di Roblox Studio?",opts:["Karakter pemain","Objek dasar berbentuk blok","Jenis script","Nama animasi"],ans:1},
-    {q:"Game Roblox dengan tema polisi dan penjahat?",opts:["Mad City","Jailbreak","Brookhaven","Prison Escape"],ans:1},
-    {q:"Apa itu 'Tween' di Roblox?",opts:["Jenis karakter","Animasi halus dari posisi A ke B","Nama item","Tipe game"],ans:1},
-    {q:"Berapa umur minimum untuk buat akun Roblox?",opts:["10","12","13","16"],ans:2},
-    {q:"Apa itu 'StarterGui' di Roblox Studio?",opts:["Tempat karakter spawn","Tempat elemen UI pemain","Tempat script server","Tempat kamera"],ans:1},
-    {q:"Apa itu 'Humanoid' di Roblox?",opts:["Nama game","Komponen yang mengontrol pergerakan karakter","Jenis musuh","Nama script"],ans:1}
-  ],
-  pubg: [
-    {q:"Kepanjangan PUBG adalah?",opts:["Player Unknown's BattleGrounds","Public Unknown Battle Game","Player Unlimited Battle Ground","Player Unknown Boss Game"],ans:0},
-    {q:"Berapa jumlah pemain dalam 1 match PUBG battle royale?",opts:["50","75","100","64"],ans:2},
-    {q:"Peta pertama yang dirilis di PUBG Mobile?",opts:["Sanhok","Miramar","Erangel","Vikendi"],ans:2},
-    {q:"Senjata legendaris PUBG yang paling mematikan?",opts:["AWM","M416","Groza","AKM"],ans:0},
-    {q:"Apa nama zona menyempit di PUBG?",opts:["Blue Zone","Red Zone","Safe Zone","Kill Zone"],ans:0},
-    {q:"Berapa HP default pemain di PUBG?",opts:["50","75","100","125"],ans:2},
-    {q:"Mode 4 orang di PUBG disebut?",opts:["Duo","Quad","Squad","Team"],ans:2},
-    {q:"Apa itu 'Chicken Dinner' di PUBG?",opts:["Item makanan","Menang pertandingan","Item langka","Achievement"],ans:1},
-    {q:"Kendaraan yang paling cepat di PUBG?",opts:["Buggy","Motorcycle","UAZ","Dacia"],ans:1},
-    {q:"Attachment yang menstabilkan recoil senjata?",opts:["Silencer","Grip","Extended Mag","Stock"],ans:1},
-    {q:"Peta terkecil di PUBG Mobile?",opts:["Erangel","Miramar","Sanhok","Vikendi"],ans:2},
-    {q:"Senjata SMG populer di close range?",opts:["UMP45","M416","AWM","SKS"],ans:0},
-    {q:"Apa fungsi smoke grenade di PUBG?",opts:["Melempar api","Menyembunyikan pergerakan","Meracuni musuh","Membuat ledakan"],ans:1},
-    {q:"Level rompi (vest) tertinggi di PUBG?",opts:["Level 2","Level 3","Level 4","Level 5"],ans:1},
-    {q:"Apa nama tier tertinggi di PUBG Mobile?",opts:["Diamond","Platinum","Conqueror","Ace"],ans:2},
-    {q:"Berapa kapasitas ammo default untuk AR di PUBG?",opts:["20","30","40","50"],ans:1},
-    {q:"Apa itu 'airdrop' di PUBG?",opts:["Serangan udara","Paket item langka yang jatuh dari pesawat","Kendaraan udara","Mode permainan"],ans:1},
-    {q:"Sniper rifle yang bisa menembus dinding di PUBG?",opts:["AWM","M24","Kar98","AMR"],ans:3},
-    {q:"Apa itu BRDM-2 di PUBG?",opts:["Senjata berat","Kendaraan lapis baja amfibi","Pesawat","Item khusus"],ans:1},
-    {q:"Berapa jumlah pemain dalam mode duo PUBG?",opts:["1","2","3","4"],ans:1},
-    {q:"Senjata AR terpopuler di PUBG kompetitif?",opts:["AKM","M416","QBZ","M249"],ans:1},
-    {q:"Apa nama sistem ranking di PUBG Mobile?",opts:["Tier System","RP System","Star System","Crown System"],ans:0},
-    {q:"Apa itu 'Royale Pass' di PUBG Mobile?",opts:["Mode permainan","Battle Pass untuk reward musiman","Item gratis","Rank tertinggi"],ans:1},
-    {q:"Peta gurun di PUBG Mobile bernama?",opts:["Sahara","Miramar","Desert Storm","Erangel"],ans:1},
-    {q:"Apa keunggulan M416 dibanding AKM?",opts:["Damage lebih tinggi","Recoil lebih stabil","Jangkauan lebih jauh","Reload lebih cepat"],ans:1},
-    {q:"Berapa zona (circle) yang menyempit dalam 1 game PUBG?",opts:["5","7","8","10"],ans:2},
-    {q:"Apa itu 'hot drop' di PUBG?",opts:["Zona api","Landing di lokasi ramai pemain","Item panas","Event khusus"],ans:1},
-    {q:"Senjata LMG di PUBG yang punya ammo banyak?",opts:["M249","DP-28","MG3","M416"],ans:0},
-    {q:"Berapa lama 1 match PUBG standard?",opts:["15 menit","20 menit","30 menit","40 menit"],ans:2},
-    {q:"Apa nama tier setelah Diamond di PUBG Mobile?",opts:["Master","Crown","Ace","Conqueror"],ans:2}
-  ],
-  coc: [
-    {q:"Kepanjangan COC adalah?",opts:["Clash of Champions","Clash of Clans","Clash of Castles","Clan of Clash"],ans:1},
-    {q:"Developer game Clash of Clans adalah?",opts:["EA Games","Supercell","Blizzard","Zynga"],ans:1},
-    {q:"Mata uang utama di Clash of Clans?",opts:["Gold & Elixir","Coins & Gems","Diamonds","Credits"],ans:0},
-    {q:"Bangunan pertama yang harus dilindungi di COC?",opts:["Barracks","Gold Mine","Town Hall","Mortar"],ans:2},
-    {q:"Troop tier tinggi paling populer di COC?",opts:["Giant","P.E.K.K.A","Dragon","Witch"],ans:1},
-    {q:"Apa itu 'Dark Elixir' di COC?",opts:["Mata uang biasa","Sumber daya untuk troop level tinggi","Bangunan pertahanan","Item premium"],ans:1},
-    {q:"Apa nama Hero pertama yang bisa didapat di COC?",opts:["Archer Queen","Grand Warden","Barbarian King","Battle Machine"],ans:2},
-    {q:"Jumlah maksimal anggota dalam satu Clan?",opts:["30","40","50","60"],ans:2},
-    {q:"Apa fungsi Laboratory di COC?",opts:["Membuat troop baru","Upgrade troop dan spell","Menyimpan sumber daya","Membuat hero"],ans:1},
-    {q:"Troop yang terbang dan menyerang dari udara?",opts:["Giant","Dragon","Goblin","P.E.K.K.A"],ans:1},
-    {q:"Apa itu 'Clan War' di COC?",opts:["Mode solo","Perang antar 2 clan","Event musiman","Mode latihan"],ans:1},
-    {q:"Bangunan pertahanan yang menembak lambat tapi kuat?",opts:["Cannon","Mortar","Archer Tower","X-Bow"],ans:1},
-    {q:"Apa itu 'Builder Base' di COC?",opts:["Tempat builder bekerja","Mode game kedua dengan desa terpisah","Nama clan","Tipe bangunan"],ans:1},
-    {q:"Spell yang paling sering dipakai untuk attack di COC?",opts:["Rage Spell","Freeze Spell","Heal Spell","Lightning Spell"],ans:0},
-    {q:"Town Hall maksimum di COC (2024)?",opts:["15","16","17","18"],ans:1},
-    {q:"Apa itu 'Loot' di COC?",opts:["Nama troop","Sumber daya yang diambil dari base musuh","Jenis clan","Mode permainan"],ans:1},
-    {q:"Troop yang cepat dan hanya menyerang resource?",opts:["Barbarian","Archer","Goblin","Minion"],ans:2},
-    {q:"Apa itu '3 bintang' di COC?",opts:["Menghancurkan 50% base","Menghancurkan semua bangunan","Menghancurkan Town Hall saja","Skor sempurna"],ans:1},
-    {q:"Hero wanita di COC bernama?",opts:["Witch Queen","Archer Queen","Battle Queen","Dark Queen"],ans:1},
-    {q:"Bangunan untuk membuat troop darat?",opts:["Army Camp","Barracks","Laboratory","Spell Factory"],ans:1},
-    {q:"Apa nama mode League perang terbesar di COC?",opts:["Clan War","Clan War League","Champion League","Grand League"],ans:1},
-    {q:"Apa itu 'Shield' di COC?",opts:["Item pertahanan fisik","Perlindungan dari serangan selama waktu tertentu","Nama bangunan","Tipe troop"],ans:1},
-    {q:"Apa itu 'Super Troop' di COC?",opts:["Troop level 1","Versi lebih kuat dari troop biasa","Troop langka","Troop event"],ans:1},
-    {q:"Apa nama season pass di COC?",opts:["Gold Pass","Battle Pass","Season Pass","Clash Pass"],ans:0},
-    {q:"Troop yang mengeluarkan bom saat mati?",opts:["Goblin","Wall Breaker","Balloon","Miner"],ans:1},
-    {q:"Apa itu 'Gem' di COC?",opts:["Mata uang premium","Item gratis","Sumber daya biasa","Bangunan khusus"],ans:0},
-    {q:"Apa fungsi 'Clan Castle' di COC?",opts:["Tempat pemimpin clan","Menyimpan troop bantuan dari anggota clan","Pusat peperangan","Tempat hero"],ans:1},
-    {q:"Tipe serangan menggunakan troop udara disebut?",opts:["Ground attack","Air attack","Mass attack","Dragon attack"],ans:1},
-    {q:"Apa itu 'Rushed Base' di COC?",opts:["Base yang rapi","Base dengan Town Hall tinggi tapi bangunan tidak upgrade","Base terkuat","Base baru"],ans:1},
-    {q:"Apa nama sumber daya ketiga selain Gold dan Elixir?",opts:["Gems","Dark Elixir","Crystal","Ore"],ans:1}
-  ]
-};
-
-// ===== STATE =====
-let currentUser = null;
-let currentQuiz = null;
-
-// ===== HELPERS =====
-let currentUser = null;
-
-
-// ===== HELPERS =====
-let currentUser = null;
-
-function esc(s) {
-  if(s==null) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
-}
-function safeAvatar(u) {
-  if(!u) return '';
-  return (u.startsWith('data:image/')||u.startsWith('https://')) ? u : '';
-}
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById(id);
-  if(el) el.classList.add('active');
-}
-function showLoading(v) { document.getElementById('loadingOverlay').classList.toggle('show',v); }
-function showNotif(msg,type='success') {
-  const n=document.createElement('div');
-  n.className='notif '+type; n.textContent=msg;
-  document.body.appendChild(n); setTimeout(()=>n.remove(),3000);
-}
-function setMsg(id,msg,type) {
-  const el=document.getElementById(id);
-  if(!el) return;
-  el.textContent=msg; el.className='msg '+(type||'');
-}
-
-// ===== ANTI BRUTE FORCE =====
-const _attempts={};
-function checkRate(u) {
-  const now=Date.now(), k=u.toLowerCase();
-  if(!_attempts[k]||now>_attempts[k].r) _attempts[k]={c:0,r:now+60000};
-  _attempts[k].c++;
-  if(_attempts[k].c>5) return 'Terlalu banyak percobaan! Tunggu '+Math.ceil((_attempts[k].r-now)/1000)+' detik.';
-  return null;
-}
-function clearRate(u) { delete _attempts[u.toLowerCase()]; }
-
-// ===== ADMIN HASH SHA-256 dari "akil123456" =====
-async function hashPass(s) {
-  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-const ADMIN_HASH='6fa45a20bffaabe58dc22965b12b9e7bff91b43aa9b0280964aaab4f3dda5661';
-
-// ===== SCREENS =====
-function showLogin(){
-  document.getElementById('loginBox').style.display='block';
-  document.getElementById('registerBox').style.display='none';
-  setMsg('loginMsg','');
-}
-function showRegister(){
-  document.getElementById('loginBox').style.display='none';
-  document.getElementById('registerBox').style.display='block';
-  setMsg('regMsg','');
-}
-function showDash(){ showScreen('dashScreen'); }
-function showAdmin(){
-  if(currentUser?.role!=='admin') return;
-  showScreen('adminScreen');
-  switchAdminTab('scores');
-}
-function showProfile(){
-  document.getElementById('profileUsernameDisplay').textContent=currentUser?.username||'-';
-  document.getElementById('profileRoleDisplay').textContent=(currentUser?.role||'user').toUpperCase();
-  document.getElementById('profileDisplayName').value=currentUser?.displayName||'';
-  const img=document.getElementById('profileAvatarImg');
-  img.src=currentUser?.avatar||"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23111'/%3E%3Ccircle cx='50' cy='38' r='18' fill='%2300f5ff' opacity='0.5'/%3E%3Cellipse cx='50' cy='80' rx='28' ry='18' fill='%2300f5ff' opacity='0.3'/%3E%3C/svg%3E";
-  setMsg('profileMsg','');
-  showScreen('profileScreen');
-}
-function showGameSelect(){ showScreen('gameSelectScreen'); }
-
-// ===== REGISTER =====
-async function doRegister(){
-  const u=document.getElementById('regUser').value.trim();
-  const p=document.getElementById('regPass').value;
-  const p2=document.getElementById('regPass2').value;
-  if(!u||!p) return setMsg('regMsg','Isi semua field!','err');
-  if(u.length<3) return setMsg('regMsg','Username min 3 karakter!','err');
-  if(p.length<6) return setMsg('regMsg','Password min 6 karakter!','err');
-  if(p!==p2) return setMsg('regMsg','Password tidak cocok!','err');
-  if(u.toLowerCase()==='admin') return setMsg('regMsg','Username tidak boleh "Admin"!','err');
-  showLoading(true);
-  try {
-    const usnap=await db.ref('usernames/'+u).get();
-    if(usnap.exists()){setMsg('regMsg','Username sudah dipakai!','err');showLoading(false);return;}
-    const cred=await auth.createUserWithEmailAndPassword(u+'@tesskil.app',p);
-    await db.ref('users/'+cred.user.uid).set({username:u,role:'user',createdAt:Date.now()});
-    await db.ref('usernames/'+u).set(cred.user.uid);
-    setMsg('regMsg','✅ Akun berhasil! Silakan login.','ok');
-    await auth.signOut();
-    setTimeout(()=>showLogin(),1500);
-  } catch(e) {
-    if(e.code==='auth/email-already-in-use') setMsg('regMsg','Username sudah dipakai!','err');
-    else if(e.code==='auth/network-request-failed') setMsg('regMsg','Gagal koneksi!','err');
-    else setMsg('regMsg','Error: '+e.message,'err');
-  }
-  showLoading(false);
-}
-
-// ===== LOGIN =====
-async function doLogin(){
-  const u=document.getElementById('loginUser').value.trim();
-  const p=document.getElementById('loginPass').value.trim();
-  if(!u||!p) return setMsg('loginMsg','Isi username dan password!','err');
-  const limited=checkRate(u);
-  if(limited) return setMsg('loginMsg',limited,'err');
-  showLoading(true);
-  if(u==='Admin'){
-    const h=await hashPass(p);
-    if(h===ADMIN_HASH){
-      clearRate(u);
-      currentUser={username:'Admin',role:'admin'};
-      sessionStorage.setItem('tsUser',JSON.stringify(currentUser));
-      setupDash(); showScreen('dashScreen');
-    } else {
-      setMsg('loginMsg','Username atau password salah!','err');
+    function pad(n, len = 2) {
+      return String(Math.floor(n)).padStart(len, '0');
     }
-    showLoading(false); return;
-  }
-  try {
-    const cred=await auth.signInWithEmailAndPassword(u+'@tesskil.app',p);
-    const snap=await db.ref('users/'+cred.user.uid).get();
-    const data=snap.val()||{};
-    if(data.banned){
-      await auth.signOut();
-      showBannedScreen(false,data.banReason||'Akun kamu dibanned permanen.');
-      showLoading(false); return;
+
+    function update() {
+      if (remaining <= 0) {
+        remaining = 0;
+      }
+
+      const totalSeconds = remaining;
+      const years  = Math.floor(totalSeconds / (365.25 * 24 * 3600));
+      const afterY = totalSeconds % (365.25 * 24 * 3600);
+      const days   = Math.floor(afterY / (24 * 3600));
+      const afterD = afterY % (24 * 3600);
+      const hours  = Math.floor(afterD / 3600);
+      const afterH = afterD % 3600;
+      const mins   = Math.floor(afterH / 60);
+      const secs   = Math.floor(afterH % 60);
+
+      document.getElementById('y').textContent = pad(years);
+      document.getElementById('d').textContent = pad(days, 3);
+      document.getElementById('h').textContent = pad(hours);
+      document.getElementById('m').textContent = pad(mins);
+      document.getElementById('s').textContent = pad(secs);
+
+      // bar shows how much time is GONE (energy drained)
+      const gone = TEN_YEARS - remaining;
+      const pct  = Math.min(100, (gone / TEN_YEARS) * 100);
+      // bar fills from right = shrinks from left (energy draining)
+      document.getElementById('bar').style.transform = `scaleX(${1 - pct/100})`;
+      document.getElementById('pct').textContent = Math.floor(pct) + '%';
+
+      remaining -= 1;
     }
-    if(data.frozenUntil&&data.frozenUntil>Date.now()){
-      await auth.signOut();
-      showBannedScreen(true,'Akun kamu sedang dibekukan.',data.frozenUntil);
-      showLoading(false); return;
-    }
-    clearRate(u);
-    currentUser={username:data.username||u,role:data.role||'user',uid:cred.user.uid,displayName:data.displayName||'',avatar:safeAvatar(data.avatar||'')};
-    sessionStorage.setItem('tsUser',JSON.stringify(currentUser));
-    setupDash(); showScreen('dashScreen');
-  } catch(e) {
-    if(['auth/user-not-found','auth/invalid-credential','auth/wrong-password'].includes(e.code))
-      setMsg('loginMsg','Username atau password salah!','err');
-    else if(e.code==='auth/network-request-failed') setMsg('loginMsg','Gagal koneksi!','err');
-    else setMsg('loginMsg','Error: '+e.message,'err');
-  }
-  showLoading(false);
-}
 
-// ===== LOGOUT =====
-async function doLogout(){
-  try{await auth.signOut();}catch(e){}
-  currentUser=null; sessionStorage.removeItem('tsUser');
-  document.getElementById('bannedScreen').classList.remove('show');
-  showScreen('loginScreen'); showLogin();
-}
-
-// ===== SETUP DASH =====
-function setupDash(){
-  const name=currentUser?.displayName||currentUser?.username||'User';
-  document.getElementById('userBadge').textContent='👤 '+name;
-  document.getElementById('dashGreet').textContent='Halo, '+name+'! ⚡';
-  document.getElementById('adminBtn').style.display=currentUser?.role==='admin'?'block':'none';
-  loadLeaderboard();
-}
-
-// ===== BAN/FREEZE SCREEN =====
-function showBannedScreen(isFrozen,reason,frozenUntil){
-  const scr=document.getElementById('bannedScreen');
-  scr.classList.add('show');
-  document.getElementById('banTitle').textContent=isFrozen?'❄️ AKUN DIBEKUKAN':'🚫 AKUN DIBLOKIR';
-  document.getElementById('banReason').textContent=reason;
-  const fs=document.getElementById('freezeSub');
-  if(isFrozen&&frozenUntil){
-    fs.style.display='block';
-    (function tick(){
-      const left=frozenUntil-Date.now();
-      if(left<=0){scr.classList.remove('show');showScreen('loginScreen');return;}
-      const h=Math.floor(left/3600000),m=Math.floor((left%3600000)/60000),s=Math.floor((left%60000)/1000);
-      fs.textContent='Cair dalam: '+(h>0?h+'j ':'')+m+'m '+s+'d';
-      setTimeout(tick,1000);
-    })();
-  } else { fs.style.display='none'; }
-}
-
-// ===== PROFILE =====
-function handleAvatarChange(e){
-  const file=e.target.files[0];
-  if(!file) return;
-  if(file.size>2*1024*1024){alert('Max 2MB!');return;}
-  const r=new FileReader();
-  r.onload=(ev)=>{document.getElementById('profileAvatarImg').src=ev.target.result;window._newAvatar=ev.target.result;};
-  r.readAsDataURL(file);
-}
-async function saveProfile(){
-  if(!currentUser?.uid){setMsg('profileMsg','Admin tidak bisa ganti profil di sini.','err');return;}
-  const dn=document.getElementById('profileDisplayName').value.trim().slice(0,20);
-  const av=window._newAvatar||currentUser.avatar||'';
-  showLoading(true);
-  try {
-    await db.ref('users/'+currentUser.uid).update({displayName:dn,avatar:av});
-    currentUser.displayName=dn; currentUser.avatar=av;
-    sessionStorage.setItem('tsUser',JSON.stringify(currentUser));
-    window._newAvatar=null;
-    setMsg('profileMsg','✅ Profil disimpan!','ok');
-    setupDash();
-  } catch(e){ setMsg('profileMsg','Gagal: '+e.message,'err'); }
-  showLoading(false);
-}
-
-// ===== LEADERBOARD =====
-let _lbCat='coding', _lbData=null, _lbRef=null;
-function switchLbTab(cat,btn){
-  _lbCat=cat;
-  document.querySelectorAll('.lb-tab').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderLb();
-}
-function loadLeaderboard(){
-  const el=document.getElementById('leaderboard');
-  el.innerHTML='<div class="lb-empty">⏳ Memuat...</div>';
-  if(_lbRef) _lbRef.off();
-  _lbRef=db.ref('scores');
-  _lbRef.on('value', snap=>{
-    _lbData=snap.val(); renderLb();
-  }, err=>{
-    el.innerHTML='<div class="lb-empty">❌ Gagal: '+esc(err.message)+'</div>';
-  });
-}
-async function renderLb(){
-  const el=document.getElementById('leaderboard');
-  if(!_lbData){el.innerHTML='<div class="lb-empty">Belum ada nilai 🚀</div>';return;}
-  let list=Object.entries(_lbData)
-    .filter(([k,v])=>v.status==='approved'&&v.category===_lbCat)
-    .map(([k,v])=>({...v,id:k}))
-    .sort((a,b)=>b.pct-a.pct).slice(0,10);
-  if(!list.length){el.innerHTML='<div class="lb-empty">Belum ada nilai di kategori ini 🏆</div>';return;}
-  const cache=window._pCache||{};
-  for(const item of list){
-    if(item.uid&&!cache[item.uid]){
-      try{const s=await db.ref('users/'+item.uid).get();cache[item.uid]=s.val()||{};}catch(e){cache[item.uid]={};}
-    }
-  }
-  window._pCache=cache;
-  el.innerHTML=list.map((item,i)=>{
-    const rank=i+1,prof=item.uid?cache[item.uid]||{}:{};
-    const name=esc(prof.displayName||item.username);
-    const av=safeAvatar(prof.avatar||'');
-    const medal=rank===1?'🥇':rank===2?'🥈':rank===3?'🥉':'#'+rank;
-    const rkCls=rank<=3?'rank-'+rank:'';
-    const avHtml=av?'<img class="lb-avatar" src="'+esc(av)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="lb-avatar" style="display:flex;align-items:center;justify-content:center">👤</div>';
-    return '<div class="lb-row"><div class="lb-rank '+rkCls+'">'+medal+'</div>'+avHtml+'<div class="lb-name">'+name+'</div><div class="lb-score">'+esc(String(item.pct||0))+'%</div></div>';
-  }).join('');
-}
-
-// ===== QUIZ =====
-function startQuiz(cat){
-  const pool=[...QUESTIONS[cat]];
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
-  window._quiz={cat,qs:pool.slice(0,30),idx:0,score:0};
-  const titles={coding:'💻 CODING TEST',termux:'📱 TERMUX TEST',mtk:'🔢 MTK TEST',ml:'⚔️ MOBILE LEGENDS',ff:'🔥 FREE FIRE',roblox:'🧱 ROBLOX',pubg:'🪖 PUBG',coc:'🏰 CLASH OF CLANS'};
-  document.getElementById('quizTitle').textContent=titles[cat]||'QUIZ';
-  showScreen('quizScreen'); renderQ();
-}
-function renderQ(){
-  const {qs,idx,score}=window._quiz;
-  const q=qs[idx];
-  document.getElementById('quizCounter').textContent='Soal '+(idx+1)+' / '+qs.length;
-  document.getElementById('quizScore').textContent='Benar: '+score;
-  document.getElementById('quizFill').style.width=((idx/qs.length)*100)+'%';
-  document.getElementById('quizQ').textContent=q.q;
-  document.getElementById('nextBtn').disabled=true;
-  const letters=['A','B','C','D'];
-  document.getElementById('quizOpts').innerHTML=q.opts.map((o,i)=>
-    '<button class="quiz-opt" onclick="pickOpt('+i+')"><span class="opt-letter">'+letters[i]+'</span><span style="color:#fff;font-weight:600">'+esc(o)+'</span></button>'
-  ).join('');
-}
-function pickOpt(i){
-  const q=window._quiz.qs[window._quiz.idx];
-  document.querySelectorAll('.quiz-opt').forEach((b,j)=>{
-    b.onclick=null;
-    if(j===q.ans) b.classList.add('correct');
-    else if(j===i&&i!==q.ans) b.classList.add('wrong');
-  });
-  if(i===q.ans) window._quiz.score++;
-  document.getElementById('nextBtn').disabled=false;
-}
-function nextQuestion(){
-  window._quiz.idx++;
-  if(window._quiz.idx>=window._quiz.qs.length) showResult();
-  else renderQ();
-}
-function showResult(){
-  const {cat,qs,score}=window._quiz;
-  const total=qs.length,pct=Math.round((score/total)*100),pass=pct>=60;
-  window._lastResult={category:cat,score,total,pct,pass};
-  document.getElementById('resultEmoji').textContent=pct>=90?'🏆':pct>=70?'🎯':pct>=60?'✅':'😢';
-  document.getElementById('resultTitle').textContent=pass?'LULUS!':'GAGAL';
-  document.getElementById('resultScore').textContent=pct+'%';
-  document.getElementById('resultDetail').textContent=score+' dari '+total+' benar';
-  document.getElementById('resultStatus').innerHTML=pass?'<div class="result-pass">✅ Selamat! Kamu lulus</div>':'<div class="result-fail">❌ Belum lulus. Minimal 60%</div>';
-  document.getElementById('submitScoreBtn').style.display='inline-block';
-  document.getElementById('submitInfo').style.display='none';
-  showScreen('resultScreen');
-}
-async function submitScore(){
-  const r=window._lastResult;
-  if(!r) return;
-  showLoading(true);
-  try {
-    const snap=await db.ref('scores').get();
-    const data=snap.val()||{};
-    const myPending=Object.values(data).filter(v=>v.username===currentUser.username&&v.status==='pending');
-    if(myPending.length>=5){showNotif('⚠️ Maks 5 nilai pending!','error');showLoading(false);return;}
-    const key=db.ref('scores').push().key;
-    await db.ref('scores/'+key).set({
-      username:currentUser.username,uid:currentUser.uid||null,
-      category:r.category,score:r.score,total:r.total,pct:r.pct,pass:r.pass,
-      status:'pending',submittedAt:Date.now()
-    });
-    document.getElementById('submitScoreBtn').style.display='none';
-    document.getElementById('submitInfo').style.display='block';
-    document.getElementById('submitInfo').textContent='📤 Nilai diajukan! Menunggu admin.';
-    showNotif('Nilai berhasil diajukan!');
-  } catch(e){ showNotif('Gagal: '+e.message,'error'); }
-  showLoading(false);
-}
-function confirmGiveUp(){ document.getElementById('giveUpOverlay').classList.add('show'); }
-function backFromGiveUp(){ document.getElementById('giveUpOverlay').classList.remove('show'); showDash(); }
-
-// ===== ADMIN =====
-let _adminRef=null;
-function switchAdminTab(tab){
-  document.getElementById('tabScores').className='admin-tab'+(tab==='scores'?' active':'');
-  document.getElementById('tabUsers').className='admin-tab'+(tab==='users'?' active':'');
-  if(_adminRef){_adminRef.off();_adminRef=null;}
-  if(tab==='scores') loadAdminScores(); else loadAdminUsers();
-}
-function loadAdminScores(){
-  const tbl=document.getElementById('adminTable');
-  tbl.innerHTML='<div class="lb-empty">⏳ Loading...</div>';
-  _adminRef=db.ref('scores');
-  _adminRef.on('value',snap=>{
-    const data=snap.val();
-    if(!data){tbl.innerHTML='<div class="lb-empty">Tidak ada pengajuan.</div>';return;}
-    const list=Object.entries(data).map(([k,v])=>({...v,id:k})).sort((a,b)=>b.submittedAt-a.submittedAt);
-    tbl.innerHTML='<table class="admin-table"><thead><tr><th>Username</th><th>Kategori</th><th>Nilai</th><th>Status</th><th>Aksi</th></tr></thead><tbody>'+
-      list.map(item=>'<tr><td><strong>'+esc(item.username)+'</strong></td><td>'+esc((item.category||'').toUpperCase())+'</td><td>'+esc(String(item.pct||0))+'%</td><td><span class="lb-status '+(item.status==='approved'?'approved':'pending')+'">'+
-        (item.status==='pending'?'⏳ Pending':item.status==='approved'?'✅ OK':'❌')+'</span></td><td>'+
-        (item.status==='pending'?'<button class="btn-approve" onclick="approveScore(\''+esc(item.id)+'\')">✅</button><button class="btn-reject" onclick="rejectScore(\''+esc(item.id)+'\')">❌</button>':
-        '<button class="btn-reject" onclick="deleteScore(\''+esc(item.id)+'\')">🗑️</button>')+
-        '</td></tr>').join('')+'</tbody></table>';
-  },err=>{tbl.innerHTML='<div class="lb-empty">❌ '+esc(err.message)+'</div>';});
-}
-function loadAdminUsers(){
-  const tbl=document.getElementById('adminTable');
-  tbl.innerHTML='<div class="lb-empty">⏳ Loading...</div>';
-  _adminRef=db.ref('users');
-  _adminRef.on('value',snap=>{
-    const data=snap.val();
-    if(!data){tbl.innerHTML='<div class="lb-empty">Tidak ada user.</div>';return;}
-    const list=Object.entries(data).map(([uid,v])=>({...v,uid})).sort((a,b)=>(a.username||'').localeCompare(b.username||''));
-    tbl.innerHTML='<table class="admin-table"><thead><tr><th>Username</th><th>Role</th><th>Status</th><th>Aksi</th></tr></thead><tbody>'+
-      list.map(u=>{
-        const isMain=u.username==='Admin';
-        const suid=esc(u.uid),suname=esc(u.username||'-');
-        const badge=u.banned?'<span class="ban-badge banned">🚫 BANNED</span>':
-          (u.frozenUntil&&u.frozenUntil>Date.now()?'<span class="ban-badge frozen">❄️ FROZEN</span>':'<span style="color:var(--green)">✅ Aktif</span>');
-        const acts=isMain?'<span style="color:var(--muted)">Protected</span>':
-          (u.banned?'<button class="btn-unban" onclick="doUnban(\''+suid+'\')">✅ Unban</button>':
-          '<button class="btn-ban" onclick="doBan(\''+suid+'\',\''+suname+'\')">🚫</button> <button class="btn-freeze" onclick="openFreeze(\''+suid+'\',\''+suname+'\')">❄️</button>')+
-          (u.frozenUntil&&u.frozenUntil>Date.now()&&!u.banned?'<button class="btn-unban" onclick="doUnfreeze(\''+suid+'\')">🔥</button>':'');
-        return '<tr><td><strong>'+suname+'</strong>'+(u.displayName?'<br><small style="color:var(--muted)">'+esc(u.displayName)+'</small>':'')+'</td><td>'+esc((u.role||'user').toUpperCase())+'</td><td>'+badge+'</td><td>'+acts+'</td></tr>';
-      }).join('')+'</tbody></table>';
-  },err=>{tbl.innerHTML='<div class="lb-empty">❌ '+esc(err.message)+'</div>';});
-}
-async function approveScore(id){ await db.ref('scores/'+id).update({status:'approved'}); showNotif('✅ Disetujui!'); }
-async function rejectScore(id){ await db.ref('scores/'+id).update({status:'rejected'}); showNotif('Ditolak.'); }
-async function deleteScore(id){ if(confirm('Hapus?')) await db.ref('scores/'+id).remove(); }
-async function doBan(uid,uname){
-  if(!confirm('Ban "'+uname+'"?')) return;
-  const reason=prompt('Alasan:')||'Melanggar aturan.';
-  await db.ref('users/'+uid).update({banned:true,banReason:reason,frozenUntil:null});
-  showNotif('🚫 Dibanned.');
-}
-async function doUnban(uid){ await db.ref('users/'+uid).update({banned:false,banReason:null}); showNotif('✅ Unban.'); }
-async function doUnfreeze(uid){ await db.ref('users/'+uid).update({frozenUntil:null}); showNotif('🔥 Dicairkan.'); }
-let _freezeUid=null;
-function openFreeze(uid,uname){
-  _freezeUid=uid;
-  document.getElementById('freezeTargetUser').textContent=uname;
-  document.getElementById('freezeDurInput').value='';
-  setMsg('freezeMsg','');
-  document.getElementById('freezeModal').classList.add('show');
-}
-function setFreezeDur(s){ document.getElementById('freezeDurInput').value=s; }
-async function doFreezeAccount(){
-  const s=parseInt(document.getElementById('freezeDurInput').value);
-  if(!s||s<1){setMsg('freezeMsg','Masukkan durasi!','err');return;}
-  await db.ref('users/'+_freezeUid).update({frozenUntil:Date.now()+s*1000,banned:false});
-  document.getElementById('freezeModal').classList.remove('show');
-  showNotif('❄️ Dibekukan '+s+' detik.');
-}
-
-// ===== GANTI SANDI =====
-async function doChangePassword(){
-  const oldP=document.getElementById('cpOld').value;
-  const newP=document.getElementById('cpNew').value;
-  const newP2=document.getElementById('cpNew2').value;
-  if(!oldP||!newP) return setMsg('cpMsg','Isi semua field!','err');
-  if(newP.length<6) return setMsg('cpMsg','Min 6 karakter!','err');
-  if(newP!==newP2) return setMsg('cpMsg','Konfirmasi tidak cocok!','err');
-  if(!currentUser?.uid) return setMsg('cpMsg','Admin tidak bisa ganti sandi di sini.','err');
-  showLoading(true);
-  try {
-    const user=auth.currentUser;
-    const cred=firebase.auth.EmailAuthProvider.credential(currentUser.username+'@tesskil.app',oldP);
-    await user.reauthenticateWithCredential(cred);
-    await user.updatePassword(newP);
-    setMsg('cpMsg','✅ Password berhasil diubah!','ok');
-    setTimeout(()=>document.getElementById('changePwModal').classList.remove('show'),2000);
-  } catch(e){
-    if(e.code==='auth/wrong-password') setMsg('cpMsg','Password lama salah!','err');
-    else setMsg('cpMsg','Error: '+e.message,'err');
-  }
-  showLoading(false);
-}
-
-// ===== ADMIN BUAT AKUN =====
-async function doAdminCreateAccount(){
-  if(currentUser?.role!=='admin') return;
-  const u=document.getElementById('acUser').value.trim();
-  const p=document.getElementById('acPass').value;
-  const role=document.getElementById('acRole').value;
-  if(!u||!p) return setMsg('acMsg','Isi semua field!','err');
-  if(p.length<6) return setMsg('acMsg','Min 6 karakter!','err');
-  showLoading(true);
-  try {
-    const usnap=await db.ref('usernames/'+u).get();
-    if(usnap.exists()){setMsg('acMsg','Username sudah dipakai!','err');showLoading(false);return;}
-    const cred=await auth.createUserWithEmailAndPassword(u+'@tesskil.app',p);
-    await db.ref('users/'+cred.user.uid).set({username:u,role,createdAt:Date.now()});
-    await db.ref('usernames/'+u).set(cred.user.uid);
-    await auth.signOut();
-    setMsg('acMsg','✅ Akun "'+u+'" ('+role+') dibuat!','ok');
-    document.getElementById('acUser').value='';
-    document.getElementById('acPass').value='';
-  } catch(e){
-    if(e.code==='auth/email-already-in-use') setMsg('acMsg','Username sudah dipakai!','err');
-    else setMsg('acMsg','Error: '+e.message,'err');
-  }
-  showLoading(false);
-}
-
-// ===== PARTICLES =====
-(function(){
-  const c=document.getElementById('particles');
-  for(let i=0;i<15;i++){
-    const p=document.createElement('div');
-    p.className='particle';
-    const sz=Math.random()*4+2;
-    p.style.cssText='width:'+sz+'px;height:'+sz+'px;left:'+(Math.random()*100)+'%;animation-duration:'+(Math.random()*15+10)+'s;animation-delay:'+(Math.random()*10)+'s;';
-    c.appendChild(p);
-  }
-})();
-
-// ===== SESSION RESTORE =====
-const saved=sessionStorage.getItem('tsUser');
-if(saved){
-  try{currentUser=JSON.parse(saved);setupDash();showScreen('dashScreen');}
-  catch(e){sessionStorage.removeItem('tsUser');}
-}
-</script>
+    update();
+    setInterval(update, 1000);
+  </script>
 </body>
 </html>
